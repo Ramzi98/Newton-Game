@@ -139,7 +139,7 @@ retirerCase(Case , [X|Reste], NvGrille) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%% nextLigneVide predicat pour trouver le prochaine Ligne vide d'une Colonne
+%%%%%%%%%%%%%%%%% nextLigneVide predicat pour trouver la prochaine Ligne vide d'une Colonne
 			%%%%% Colonne N° de colonne Min la valeur minimale des ligne %%%%%%%%%%%
 
 
@@ -199,29 +199,157 @@ deplacement(Grille, Player, NVGrille) :-
 	
 
 	%%%% deplacement([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],1,NVG).
+	%%%% contrainteVerticale([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]],[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]]).
+	%%%% etatGagnant([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],Player).
+
+%% contrainteVerticale(Grille,GrilleInit)
+	%%% Grille : Grille courante pendant le parcour  
+	%%% GrilleInit : la grille au debut de parcour avec toutes les elements  
+
+contrainteVerticale([],_) :- 
+	fail,
+	!.
+
+contrainteVerticale(G,G1):-
+	%% nombrePionGrille(G,N), %% Pour optimiser
+	%% N >=5, %% Pour optimiser
+	G = [[[A,B],_]|_],
+	B = 5,
+	member([[A,4],Couleur],G1),
+	member([[A,3],Couleur],G1),
+	member([[A,2],Couleur],G1),
+	member([[A,1],Couleur],G1),
+	!.
+
+contrainteVerticale(G,G1):-
+	%% nombrePionGrille(G,N), %% Pour optimiser
+	%% N >=5, %% Pour optimiser
+	G = [[[A,B],Couleur]|_],
+	B = 6,
+	member([[A,5],Couleur],G1),
+	member([[A,4],Couleur],G1),
+	member([[A,3],Couleur],G1),
+	member([[A,2],Couleur],G1),
+	!.
+
+contrainteVerticale(G,G1):-
+	G = [_|Reste],
+	contrainteVerticale(Reste,G1).
 
 
-memeColonne(G,N):-
-	G = [[A,B]|Reste]. %% a finir.
+%% contrainteHorizontale(Grille,GrilleInit)
+	%%% Grille : Grille courante pendant le parcour  
+	%%% GrilleInit : la grille au debut de parcour avec toutes les elements  
 
-contrainteVerticale(G,M):-
-	
-	nombrePionGrille(G,N),
-	N >=5,
-	G = [[A,B]|Reste],
-	M1 is M + 1,
-	contrainteVerticale(Reste,M1).
+contrainteHorizontale([],_) :- 
+	fail,
+	!.
+
+contrainteHorizontale(G,G1):-
+	%% nombrePionGrille(G,N), %% Pour optimiser
+	%% N >=5, %% Pour optimiser
+	G = [[[A,B],_]|_],
+	B >= 1,
+	B =< 6,
+	A = 1,
+	member([[2,B],Couleur],G1),
+	member([[3,B],Couleur],G1),
+	member([[4,B],Couleur],G1),
+	member([[5,B],Couleur],G1),
+	!.
+
+contrainteHorizontale(G,G1):-
+	G = [_|Reste],
+	contrainteHorizontale(Reste,G1).
+
+
+
+%% contrainteDiagonale(Grille,GrilleInit)
+	%%% Grille : Grille courante pendant le parcour  
+	%%% GrilleInit : la grille au debut de parcour avec toutes les elements  
+
+contrainteDiagonale([],_) :- 
+	fail,
+	!.
+
+contrainteDiagonale(G,G1):-
+	%% nombrePionGrille(G,N), %% Pour optimiser
+	%% N >=5, %% Pour optimiser
+	G = [[[A,B],_]|_],
+	B = 6,
+	A = 1,
+	member([[2,5],Couleur],G1),
+	member([[3,4],Couleur],G1),
+	member([[4,3],Couleur],G1),
+	member([[5,2],Couleur],G1),
+	!.
+
+contrainteDiagonale(G,G1):-
+	%% nombrePionGrille(G,N), %% Pour optimiser
+	%% N >=5, %% Pour optimiser
+	G = [[[A,B],_]|_],
+	B = 5,
+	A = 1,
+	member([[2,4],Couleur],G1),
+	member([[3,3],Couleur],G1),
+	member([[4,2],Couleur],G1),
+	member([[5,1],Couleur],G1),
+	!.
+
+contrainteDiagonale(G,G1):-
+	%% nombrePionGrille(G,N), %% Pour optimiser
+	%% N >=5, %% Pour optimiser
+	G = [[[A,B],_]|_],
+	B = 6,
+	A = 5,
+	member([[4,5],Couleur],G1),
+	member([[3,4],Couleur],G1),
+	member([[2,3],Couleur],G1),
+	member([[1,2],Couleur],G1),
+	!.
+
+contrainteDiagonale(G,G1):-
+	%% nombrePionGrille(G,N), %% Pour optimiser
+	%% N >=5, %% Pour optimiser
+	G = [[[A,B],_]|_],
+	B = 5,
+	A = 5,
+	member([[4,4],Couleur],G1),
+	member([[3,3],Couleur],G1),
+	member([[2,2],Couleur],G1),
+	member([[1,1],Couleur],G1),
+	!.
+contrainteDiagonale(G,G1):-
+	G = [_|Reste],
+	contrainteDiagonale(Reste,G1).
+
+contrainte(G,G1):-
+	contrainteVerticale(G,G1),
+	!.
+
+contrainte(G,G1):-
+	contrainteHorizontale(G,G1),
+	!.
+
+contrainte(G,G1):-
+	contrainteDiagonale(G,G1),
+	!.
+
+%%%% etatGagnant(Grille,Player) : Grille (la grille principale Grille = [G1,G2] )
+	%%%%%%%%% Player : numero de joueur gagnant 
+	%%%%%%%%% return false si pas de gagnant 
+
+%%%%%%%%%% Pour vérifier les deux joueur il faut enlver le  !.
 
 etatGagnant(Grille,Player):-
-
-	Grille = [G1,G2],
-	contrainte(G1),
-	Player is 1.
+	Grille = [G1,_],
+	contrainte(G1,G1),
+	Player is 1,
+	!.
 
 etatGagnant(Grille,Player):-
-
-	Grille = [G1,G2],
-	contrainte(G2),
-	Player is 2.
+	Grille = [_,G2],
+	contrainte(G2,G2),
+	Player is 2,
+	!.
 	
-
