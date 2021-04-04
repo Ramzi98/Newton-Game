@@ -1,7 +1,6 @@
 :-use_module(library(lists)).
 :-set_prolog_flag(answer_write_options,[max_depth(0)]).
 
-
 %:-initialGrid/1
 %Définit la grille initiale
 grilleinitiale(G):-
@@ -196,6 +195,77 @@ deplacement(Grille, Player, NVGrille) :-
 	getCaseLigneH(PGrille, Case),
 	deplacable(Case, Grille), % a enlever proablement 
 	movepiece(Case, NvCase,Player ,Couleur,Grille , NVGrille).
+
+
+%%%%% allCase([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],r,1,Case).
+
+
+%%%%%%%%%%%%%%%%% allCase Récupère  les cases vides pour toutes les Colonne %%%%%%%%%%%%%%%%%%%%%%
+
+allCase(PGrille, Couleur, Case) :-
+	getCasePossible(PGrille, Couleur, 1, 6, Case).
+
+allCase(PGrille, Couleur, Case) :-
+	getCasePossible(PGrille, Couleur, 2, 6, Case).
+
+allCase(PGrille, Couleur, Case) :-
+	getCasePossible(PGrille, Couleur, 3, 6, Case).
+
+allCase(PGrille, Couleur, Case) :-
+	getCasePossible(PGrille, Couleur, 4, 6, Case).
+
+allCase(PGrille, Couleur, Case) :-
+	getCasePossible(PGrille, Couleur, 5, 6, Case).
+
+
+%%%%%%%%%%%%%%%%% getCasePossible Récupère la premier Case vide (de bas en haut) Dans une colonne fournie
+		%%%%%%%%	Grille : la grile de jeux actuelle %%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%	Couleur : la couleur du joueur qui va jouer le coup %%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%	Colonne : la colonne fournie Pour trouver une case vide %%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%	Ligne : la Ligne fournie Pour V"rifier si la case [Ligne, Colonne] est vide sinon Ligne = Ligne -1 %%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%	Case : la premier case vide (de bas en haut) %%%%%%%%%%%%%%%%%%%%%%
+
+getCasePossible(_, _, 0, _) :-
+	!.
+
+getCasePossible(Grille, Couleur, Colonne, Ligne, Case) :-
+	Grille = [G1,G2],
+	Ligne >= 1,
+	\+ member([[Colonne,Ligne],_], G1),
+	\+ member([[Colonne,Ligne],_], G2),
+	Case = [[Colonne,Ligne],Couleur],
+	!.
+
+getCasePossible(Grille, Couleur, Colonne, Ligne, Case) :-
+	Ligne >= 1,
+	N is Ligne - 1,
+	getCasePossible(Grille, Couleur, Colonne, N, Case).
+
+	
+addCaseGrille(Grille, Couleur, Case, NVGrille) :-
+	Grille = [G1,G2],
+	G1 = [[_,Couleur]|_],
+	NVG1 = [Case|G1],
+	NVGrille = [NVG1,G2].
+
+addCaseGrille(Grille, Couleur, Case, NVGrille) :-
+	Grille = [G1,G2],
+	G2 = [[_,Couleur]|_],
+	NVG2 = [Case|G2],
+	NVGrille = [G1,NVG2].
+
+%% deplacementPoche([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NVGrille).
+%% deplacementPoche([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[1,6],b],[[1,5],b],[[1,4],b],[[1,3],b],[[1,2],b],[[1,1],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NVGrille).
+
+
+%Deplacement depuis la Poche
+deplacementPoche(Grille, Player, NVGrille) :-
+	joueurCouleur(Player, Couleur),
+	grilleinitiale(Player, PGrille),
+	nombrePionPoche(PGrille, N),
+	N > 0,
+	allCase(Grille, Couleur, Case),
+	addCaseGrille(Grille, Couleur, Case, NVGrille).
 	
 
 	%%%% deplacement([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],1,NVG).
@@ -352,4 +422,3 @@ etatGagnant(Grille,Player):-
 	contrainte(G2,G2),
 	Player is 2,
 	!.
-	
