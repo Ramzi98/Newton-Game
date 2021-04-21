@@ -1,23 +1,27 @@
-#include "fonctionsTCP.h"
+#include "fonctionTcp.h"
 #include "protocolNewton.h"
 #include "validation.h"
+#include <string.h>
 
+#define T_NOM 30
 
 
 int main(int argc, char** argv) {
   int  sockConx,        /* descripteur socket connexion */
-       sockTrans,       /* descripteur socket transmission */
+       sockTrans1,   
+       sockTrans2,    /* descripteur socket transmission */
        port,            /* numero de port */
        sizeAddr,        /* taille de l'adresse d'une socket */
-       err;
+       err,
+       nfsd;
 
-  TCodeReq codeReq;
+  TIdReq codeReq;
   TPartieReq reqPartie;
   TPartieRep repPartieJ1, repPartieJ2;
   int joueur1 = 0;
   int joueur2 = 0;
   char nomJoueur1[T_NOM];
-  char nomJoueur1[T_NOM];
+  char nomJoueur2[T_NOM];
 
   struct sockaddr_in addClient;	/* adresse de la socket client connectee */
   
@@ -60,7 +64,7 @@ int main(int argc, char** argv) {
 
   if (FD_ISSET(sockTrans1, &readSet) != 0) { 
      
-    err = recv(sockTrans1, &codeReq, sizeof(TCodeReq), 0);
+    err = recv(sockTrans1, &codeReq, sizeof(TIdReq), 0);
     if (err < 0 ) 
     perror("(serveurSelect) erreur dans le recv 1");
 
@@ -74,7 +78,8 @@ int main(int argc, char** argv) {
             joueur1 = 1;
             repPartieJ1.err = ERR_OK;
             repPartieJ1.coulPion = BLEU;
-            nomJoueur1 = reqPartie.nomJoueur;
+            memcpy(nomJoueur1,reqPartie.nomJoueur,sizeof(T_NOM));
+
         }
         break;
     }
@@ -83,7 +88,7 @@ int main(int argc, char** argv) {
 
    if (FD_ISSET(sockTrans2, &readSet) != 0) { 
      
-    err = recv(sockTrans2, &codeReq, sizeof(TCodeReq), 0);
+    err = recv(sockTrans2, &codeReq, sizeof(TIdReq), 0);
     if (err < 0 ) 
     perror("(serveurSelect) erreur dans le recv 1");
 
@@ -97,7 +102,7 @@ int main(int argc, char** argv) {
             joueur2 = 1;
             repPartieJ2.err = ERR_OK;
             repPartieJ2.coulPion = ROUGE;
-            nomJoueur2 = reqPartie.nomJoueur;
+            memcpy(nomJoueur2,reqPartie.nomJoueur,sizeof(T_NOM));
         }
         break;
     }
@@ -106,28 +111,25 @@ int main(int argc, char** argv) {
 
   if(joueur1 == 1 && joueur2 == 1){
       initialiserPartie();
-      repPartieJ1.nomAdvers = nomJoueur2;
-      repPartieJ2.nomAdvers = nomJoueur1;
-     err = send(sockTrans1, repPartieJ1, sizeof(TPartieRep) , 0);
+      memcpy(repPartieJ1.nomAdvers,nomJoueur2,sizeof(T_NOM));
+      memcpy(repPartieJ2.nomAdvers,nomJoueur1,sizeof(T_NOM));
+     err = send(sockTrans1, &repPartieJ1, sizeof(TPartieRep) , 0);
       if (err <= 0) { 
       perror("(serveurR) erreur sur le send");
-      shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
+      shutdown(sockTrans1, SHUT_RDWR); close(sockTrans1);
       return -5;
       }
 
-      err = send(sockTrans2, repPartieJ2, sizeof(TPartieRep) , 0);
+      err = send(sockTrans2, &repPartieJ2, sizeof(TPartieRep) , 0);
       if (err <= 0) { 
       perror("(serveurR) erreur sur le send");
-      shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
+      shutdown(sockTrans2, SHUT_RDWR); close(sockTrans2);
       return -5;
       }
 
   }
 }
-    /* 
-   * arret de la connexion et fermeture
-   */
-  shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
+
   close(sockConx);
   
   
