@@ -1,28 +1,41 @@
-#include "fonctionsTCP.h"
+#include "fonctionTcp.h"
 #include "protocolNewton.h"
 #include "validation.h"
+<<<<<<< HEAD
 #include "time.h"
 
 #define TIME_MAX 6;
+=======
+#include <string.h>
+
+#define T_NOM 30
+
+>>>>>>> 984a9cba95dc6250008f8ba4f524ec8441808227
 
 int main(int argc, char** argv) {
   int  sockConx,        /* descripteur socket connexion */
-       sockTrans,       /* descripteur socket transmission */
+       sockTrans1,   
+       sockTrans2,    /* descripteur socket transmission */
        port,            /* numero de port */
        sizeAddr,        /* taille de l'adresse d'une socket */
-       err;
+       err,
+       nfsd;
 
+<<<<<<< HEAD
   TCodeReq codeReq;
   
   TCoupReq reqCoup;
   TCoupRep repCoup;
+=======
+  TIdReq codeReq;
+>>>>>>> 984a9cba95dc6250008f8ba4f524ec8441808227
   TPartieReq reqPartie;
   TPartieRep repPartieJ1, repPartieJ2;
   TPropCoup *propCoup;
 
   int numPartie = 1;
   char nomJoueur1[T_NOM];
-  char nomJoueur1[T_NOM];
+  char nomJoueur2[T_NOM];
 
   struct sockaddr_in addClient;	/* adresse de la socket client connectee */
 
@@ -56,7 +69,13 @@ int main(int argc, char** argv) {
 
   
 
+<<<<<<< HEAD
     err = recv(sockTrans1, &codeReq, sizeof(TCodeReq), MSG_PEEK);
+=======
+  if (FD_ISSET(sockTrans1, &readSet) != 0) { 
+     
+    err = recv(sockTrans1, &codeReq, sizeof(TIdReq), 0);
+>>>>>>> 984a9cba95dc6250008f8ba4f524ec8441808227
     if (err < 0 ) 
     perror("(serveurSelect) erreur dans le recv 1");
 
@@ -67,16 +86,26 @@ int main(int argc, char** argv) {
         err = recv(sockTrans1, &reqPartie,sizeof(TPartieReq), 0);
             repPartieJ1.err = ERR_OK;
             repPartieJ1.coulPion = BLEU;
+<<<<<<< HEAD
             nomJoueur1 = reqPartie.nomJoueur;
             break;
+=======
+            memcpy(nomJoueur1,reqPartie.nomJoueur,sizeof(T_NOM));
+>>>>>>> 984a9cba95dc6250008f8ba4f524ec8441808227
 
         }
         case default : 
         repPartieJ1.err = ERR_TYP;
         break;
 
+<<<<<<< HEAD
     
     err = recv(sockTrans2, &codeReq, sizeof(TCodeReq), MSG_PEEK);
+=======
+   if (FD_ISSET(sockTrans2, &readSet) != 0) { 
+     
+    err = recv(sockTrans2, &codeReq, sizeof(TIdReq), 0);
+>>>>>>> 984a9cba95dc6250008f8ba4f524ec8441808227
     if (err < 0 ) 
     perror("(serveurSelect) erreur dans le recv 1");
 
@@ -87,9 +116,17 @@ int main(int argc, char** argv) {
         err = recv(sockTrans2,&reqPartie,sizeof(TPartieReq), 0);
             repPartieJ2.err = ERR_OK;
             repPartieJ2.coulPion = ROUGE;
+<<<<<<< HEAD
             nomJoueur2 = reqPartie.nomJoueur;
             break;
 
+=======
+            memcpy(nomJoueur2,reqPartie.nomJoueur,sizeof(T_NOM));
+        }
+        break;
+    }
+  }
+>>>>>>> 984a9cba95dc6250008f8ba4f524ec8441808227
 
       case default : 
 
@@ -98,22 +135,29 @@ int main(int argc, char** argv) {
     }
   
       initialiserPartie();
+<<<<<<< HEAD
       repPartieJ1.nomAdvers = nomJoueur2;
       repPartieJ2.nomAdvers = nomJoueur1;
       err = send(sockTrans1, repPartieJ1, sizeof(TPartieRep) , 0);
+=======
+      memcpy(repPartieJ1.nomAdvers,nomJoueur2,sizeof(T_NOM));
+      memcpy(repPartieJ2.nomAdvers,nomJoueur1,sizeof(T_NOM));
+     err = send(sockTrans1, &repPartieJ1, sizeof(TPartieRep) , 0);
+>>>>>>> 984a9cba95dc6250008f8ba4f524ec8441808227
       if (err <= 0) { 
       perror("(serveurR) erreur sur le send");
       shutdown(sockTrans1, SHUT_RDWR); close(sockTrans1);
       return -5;
       }
 
-      err = send(sockTrans2, repPartieJ2, sizeof(TPartieRep) , 0);
+      err = send(sockTrans2, &repPartieJ2, sizeof(TPartieRep) , 0);
       if (err <= 0) { 
       perror("(serveurR) erreur sur le send");
       shutdown(sockTrans2, SHUT_RDWR); close(sockTrans2);
       return -5;
       }
 
+<<<<<<< HEAD
 
     if(numPartie == 1){
 
@@ -536,6 +580,10 @@ int main(int argc, char** argv) {
   
   shutdown(sockTrans1, SHUT_RDWR); close(sockTrans1);
   shutdown(sockTrans2, SHUT_RDWR); close(sockTrans2);
+=======
+  }
+}
+>>>>>>> 984a9cba95dc6250008f8ba4f524ec8441808227
 
   close(sockConx);
   
