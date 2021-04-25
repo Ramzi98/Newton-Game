@@ -63,12 +63,11 @@ public class Client extends Newton {
 
             while(num_partie <= 2)
             {
-
+                os.flush();
+                System.out.println("Partie N :"+num_partie);
                 if(ma_coulPion == TCoul.BLEU && num_partie == 1 || ma_coulPion == TCoul.ROUGE && num_partie == 2)
                 {
                     /**************  Requete COUP **************/
-
-                    Param mes_param;
 
                     /************ @TODO A récuprer de puis le Moteur IA *************/
                     mon_tcoup = TCoup.POSE; // POSE | DEPL (Réceperation depuis le Moteur IA)
@@ -78,24 +77,28 @@ public class Client extends Newton {
 
                     /******************************************************************/
 
+                    TPosPion tPosPion;
+                    TDeplPion tDeplPion;
+                    TCoupReq ma_tCoupReq ;
+
+                    TIdReq ma_requete_coup = COUP;
+                    TPropCoup ma_tPropCoup_client = CONT; // A modifier  on le récuper depuis le Moteur IA
 
                     if(mon_tcoup == TCoup.POSE)
                     {
                         TCase tCase = new TCase(ma_ligne, ma_clonne);
-                        TPosPion tPosPion = new TPosPion(ma_coulPion, tCase);
-                        TDeplPion tDeplPion = new TDeplPion();
-                        mes_param = new Param(tPosPion, tDeplPion);
+                        tPosPion = new TPosPion(ma_coulPion, tCase);
+                        tDeplPion = new TDeplPion();
+                        ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
                     }
                     else
                     {
-                        TDeplPion tDeplPion = new TDeplPion(ma_coulPion, ma_clonne, ma_ligne);
-                        TPosPion tPosPion = new TPosPion();
-                        mes_param = new Param(tPosPion, tDeplPion);
+                        tDeplPion = new TDeplPion(ma_coulPion, ma_clonne, ma_ligne);
+                        tPosPion = new TPosPion();
+                        ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
                     }
 
-                    TIdReq ma_requete_coup = COUP;
-                    TPropCoup ma_tPropCoup_client = CONT; // A modifier  on le récuper depuis le Moteur IA
-                    TCoupReq ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, mes_param, ma_tPropCoup_client);
+
                     ma_tCoupReq.send(os);
                     //oos.writeObject(ma_tCoupReq);
 
@@ -171,7 +174,9 @@ public class Client extends Newton {
                                     TIdReq adv_id_req = adv_tCoupReq.getIdRequest();
                                     int adv_num_partie = adv_tCoupReq.getNumPartie();
                                     TCoup adv_tcoup = adv_tCoupReq.getTypeCoup();
-                                    Param adv_param = adv_tCoupReq.getParam();
+                                    TPosPion adv_tPosPion = adv_tCoupReq.getPosePion();
+                                    TDeplPion adv_tDeplPion = adv_tCoupReq.getDeplPion();
+                                    //Param adv_param = adv_tCoupReq.getParam();
                                     TPropCoup adv_tPropCoup_client = adv_tCoupReq.getPropCoup();
 
                                     TCoul adv_coulPion;
@@ -181,7 +186,6 @@ public class Client extends Newton {
                                     if(adv_tcoup == TCoup.POSE)
                                     {
 
-                                        TPosPion adv_tPosPion = adv_param.getPosePion();
                                         adv_coulPion = adv_tPosPion.getCoulPion();
                                         TCase adv_tCase = adv_tPosPion.getPosPion();
                                         adv_ligne = adv_tCase.getL();
@@ -190,7 +194,6 @@ public class Client extends Newton {
                                     }
                                     else
                                     {
-                                        TDeplPion adv_tDeplPion = adv_param.getDeplPion();
                                         adv_coulPion = adv_tDeplPion.getCoulPion();
                                         adv_ligne = adv_tDeplPion.getLgPionD();
                                         adv_colonne = adv_tDeplPion.getColPion();
@@ -252,7 +255,8 @@ public class Client extends Newton {
                         TIdReq adv_id_req = adv_tCoupReq.getIdRequest();
                         int adv_num_partie = adv_tCoupReq.getNumPartie();
                         TCoup adv_tcoup = adv_tCoupReq.getTypeCoup();
-                        Param adv_param = adv_tCoupReq.getParam();
+                        TPosPion adv_tPosPion = adv_tCoupReq.getPosePion();
+                        TDeplPion adv_tDeplPion = adv_tCoupReq.getDeplPion();
                         TPropCoup adv_tPropCoup_client = adv_tCoupReq.getPropCoup();
 
                         TCoul adv_coulPion;
@@ -260,15 +264,12 @@ public class Client extends Newton {
                         TCol adv_colonne;
 
                         if (adv_tcoup == TCoup.POSE) {
-
-                            TPosPion adv_tPosPion = adv_param.getPosePion();
                             adv_coulPion = adv_tPosPion.getCoulPion();
                             TCase adv_tCase = adv_tPosPion.getPosPion();
                             adv_ligne = adv_tCase.getL();
                             adv_colonne = adv_tCase.getC();
 
                         } else {
-                            TDeplPion adv_tDeplPion = adv_param.getDeplPion();
                             adv_coulPion = adv_tDeplPion.getCoulPion();
                             adv_ligne = adv_tDeplPion.getLgPionD();
                             adv_colonne = adv_tDeplPion.getColPion();
@@ -286,34 +287,35 @@ public class Client extends Newton {
 
                     /**************  Requete COUP **************/
 
-                    Param mes_param;
-
                     /************ @TODO A récuprer de puis le Moteur IA *************/
                     mon_tcoup = TCoup.POSE; // POSE | DEPL (Réceperation depuis le Moteur IA)
 
-                    TLg ma_ligne = A;
-                    TCol ma_clonne = UN;
+                    TLg ma_ligne = F;
+                    TCol ma_clonne = CINQ;
 
                     /******************************************************************/
+
+                    TPosPion tPosPion;
+                    TDeplPion tDeplPion;
+                    TCoupReq ma_tCoupReq ;
+
+                    TIdReq ma_requete_coup = COUP;
+                    TPropCoup ma_tPropCoup_client = CONT; // A modifier  on le récuper depuis le Moteur IA
 
                     if(mon_tcoup == TCoup.POSE)
                     {
                         TCase tCase = new TCase(ma_ligne, ma_clonne);
-                        TPosPion tPosPion = new TPosPion(ma_coulPion, tCase);
-                        TDeplPion tDeplPion = new TDeplPion();
-                        mes_param = new Param(tPosPion, tDeplPion);
+                        tPosPion = new TPosPion(ma_coulPion, tCase);
+                        tDeplPion = new TDeplPion();
+                        ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
                     }
                     else
                     {
-                        TDeplPion tDeplPion = new TDeplPion(ma_coulPion, ma_clonne, ma_ligne);
-                        TPosPion tPosPion = new TPosPion();
-                        mes_param = new Param(tPosPion, tDeplPion);
+                        tDeplPion = new TDeplPion(ma_coulPion, ma_clonne, ma_ligne);
+                        tPosPion = new TPosPion();
+                        ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
                     }
 
-
-                    TIdReq ma_requete_coup = COUP;
-                    TPropCoup ma_tPropCoup_client = CONT; // A modifier  on le récuper depuis le Moteur IA
-                    TCoupReq ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, mes_param, ma_tPropCoup_client);
 
                     ma_tCoupReq.send(os);
 
@@ -419,6 +421,11 @@ public class Client extends Newton {
 
     @Override
     public void recive(InputStream is) throws IOException {
+
+    }
+
+    @Override
+    public void getFromBuffer(ByteBuffer buffer) throws IOException {
 
     }
 }

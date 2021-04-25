@@ -14,6 +14,8 @@ public class TCase extends Newton{
         this.c = c;
     }
 
+    public TCase() { }
+
     public TLg getL() {
         return l;
     }
@@ -54,8 +56,13 @@ public class TCase extends Newton{
     @Override
     public void recive(InputStream is) throws IOException {
         byte[] bytes = new byte[size()];
-        is.readNBytes(bytes, 0, size());
+        is.read(bytes);
         ByteBuffer buffer = ByteBuffer.allocate(size()).put(bytes).flip();
+        getFromBuffer(buffer);
+    }
+
+    @Override
+    public void getFromBuffer(ByteBuffer buffer) throws IOException {
         l = readEnumuration(buffer, TLg.class);
         c = readEnumuration(buffer, TCol.class);
     }

@@ -75,13 +75,15 @@ public class TDeplPion extends Newton{
     @Override
     public void recive(InputStream is) throws IOException {
         byte[] bytes = new byte[size()];
-        is.readNBytes(bytes, 0, size());
-
+        is.read(bytes);
         ByteBuffer buffer = ByteBuffer.allocate(size()).put(bytes).flip();
+        getFromBuffer(buffer);
+    }
 
+    @Override
+    public void getFromBuffer(ByteBuffer buffer) throws IOException {
         coulPion = readEnumuration(buffer, TCoul.class);
         colPion = readEnumuration(buffer, TCol.class);
         lgPionD = readEnumuration(buffer, TLg.class);
-
     }
 }

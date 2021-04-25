@@ -60,5 +60,10 @@ public class TPartieReq extends Newton {
 
     }
 
+    @Override
+    public void getFromBuffer(ByteBuffer buffer) throws IOException {
+
+    }
+
 
 }

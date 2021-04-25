@@ -122,6 +122,12 @@ public abstract class Newton {
                 | ((bytes[3] & 0xFF) << 24));
     }
 
+    public int readIntBytes(ByteBuffer buffer) throws IOException{
+        byte[] bytes = new byte[4];
+        int n = buffer.getInt();
+        return little2big(n);
+    }
+
     public static byte[] StringToByteArray(String s) {
         byte[] old, res;
         old=null;
@@ -134,6 +140,12 @@ public abstract class Newton {
         System.arraycopy(old, 0, res, 0, s.length());
         return res;
     }
+
+    int little2big(int i) {
+        return (i&0xff)<<24 | (i&0xff00)<<8 | (i&0xff0000)>>8 | (i>>24)&0xff;
+    }
+
+    public abstract void getFromBuffer(ByteBuffer buffer) throws IOException;
 
 
 

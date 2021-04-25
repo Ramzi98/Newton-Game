@@ -9,16 +9,19 @@ public class TCoupReq extends Newton{
     private TIdReq     idRequest;     /* Identificateur de la requete */
     private int        numPartie;     /* Numero de la partie (commencant a 1) */
     private TCoup      typeCoup;      /* Type coup */
-    private Param      param;
+    private TPosPion  posePion;
+    private TDeplPion deplPion;
     private TPropCoup  propCoup;      /* Propriete du coup proposee par le joueur */
 
-    public TCoupReq(TIdReq idRequest, int numPartie, TCoup typeCoup, Param param, TPropCoup propCoup) {
+    public TCoupReq(TIdReq idRequest, int numPartie, TCoup typeCoup, TPosPion posePion, TDeplPion deplPion, TPropCoup propCoup) {
         this.idRequest = idRequest;
         this.numPartie = numPartie;
         this.typeCoup = typeCoup;
-        this.param = param;
+        this.posePion = posePion;
         this.propCoup = propCoup;
+        this.deplPion = deplPion;
     }
+
 
     public TCoupReq() {
 
@@ -48,12 +51,20 @@ public class TCoupReq extends Newton{
         this.typeCoup = typeCoup;
     }
 
-    public Param getParam() {
-        return param;
+    public TPosPion getPosePion() {
+        return posePion;
     }
 
-    public void setParam(Param param) {
-        this.param = param;
+    public void setPosePion(TPosPion posePion) {
+        this.posePion = posePion;
+    }
+
+    public TDeplPion getDeplPion() {
+        return deplPion;
+    }
+
+    public void setDeplPion(TDeplPion deplPion) {
+        this.deplPion = deplPion;
     }
 
     public TPropCoup getPropCoup() {
@@ -74,13 +85,19 @@ public class TCoupReq extends Newton{
         byte[] idRequest_bytes = intToBytes(idRequest.ordinal());
         byte[] numPartie_bytes = intToBytes(numPartie);
         byte[] typeCoup_bytes = intToBytes(typeCoup.ordinal());
-
         byte[] propCoup_bytes = intToBytes(propCoup.ordinal());
 
         buffer.put(idRequest_bytes);
         buffer.put(numPartie_bytes);
         buffer.put(typeCoup_bytes);
-        param.putInBuffer(buffer);
+        if(typeCoup == TCoup.POSE)
+        {
+            posePion.putInBuffer(buffer);
+        }
+        else
+        {
+            deplPion.putInBuffer(buffer);
+        }
         buffer.put(propCoup_bytes);
 
     }
@@ -95,14 +112,27 @@ public class TCoupReq extends Newton{
     @Override
     public void recive(InputStream is) throws IOException {
         byte[] bytes = new byte[size()];
-        is.readNBytes(bytes, 0, size());
-
+        is.read(bytes);
         ByteBuffer buffer = ByteBuffer.allocate(size()).put(bytes).flip();
+        getFromBuffer(buffer);
 
+    }
+
+    @Override
+    public void getFromBuffer(ByteBuffer buffer) throws IOException {
         idRequest = readEnumuration(buffer, TIdReq.class);
-        numPartie = readInt(is);
+        numPartie = readIntBytes(buffer);
         typeCoup = readEnumuration(buffer, TCoup.class);
-        param.recive(is);
+        if(typeCoup == TCoup.POSE)
+        {
+            posePion = new TPosPion();
+            posePion.getFromBuffer(buffer);
+        }
+        else
+        {
+            deplPion = new TDeplPion();
+            deplPion.getFromBuffer(buffer);
+        }
         propCoup = readEnumuration(buffer, TPropCoup.class);
     }
 }

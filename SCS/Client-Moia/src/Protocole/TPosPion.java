@@ -18,6 +18,7 @@ public class TPosPion extends Newton{
     {
         this.coulPion = TCoul.ROUGE;
         this.posPion = new TCase(TLg.A, TCol.UN);
+
     }
 
     public TCoul getCoulPion() {
@@ -59,9 +60,15 @@ public class TPosPion extends Newton{
     @Override
     public void recive(InputStream is) throws IOException {
         byte[] bytes = new byte[size()];
-        is.readNBytes(bytes, 0, size());
+        is.read(bytes);
         ByteBuffer buffer = ByteBuffer.allocate(size()).put(bytes).flip();
+        getFromBuffer(buffer);
+    }
+
+    @Override
+    public void getFromBuffer(ByteBuffer buffer) throws IOException {
         coulPion = readEnumuration(buffer, TCoul.class);
-        posPion.recive(is);
+        posPion = new TCase();
+        posPion.getFromBuffer(buffer);
     }
 }
