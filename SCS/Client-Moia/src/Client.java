@@ -2,6 +2,8 @@ import Protocole.*;
 
 import java.net.* ;
 import java.io.* ;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import static Protocole.Newton.TCol.*;
@@ -22,7 +24,7 @@ public class Client extends Newton {
         int port = Integer.parseInt(args[1]);
         String name1 = args[2];
         char[] name_joueur = new char[name1.length()];
-        char[] name_adversaire;
+        String name_adversaire;
         TCoul ma_coulPion;
         TCoup mon_tcoup;
         int num_partie = 1;
@@ -43,18 +45,18 @@ public class Client extends Newton {
             OutputStream os = s.getOutputStream();
             InputStream is = s.getInputStream();
 
-            ObjectOutputStream oos = new ObjectOutputStream(os);
-            ObjectInputStream ois = new ObjectInputStream(is);
 
             /**************  Requete PARTIE **************/
 
             TIdReq requete_partie = PARTIE;
             TPartieReq tPartieReq = new TPartieReq(requete_partie, name_joueur);
-            oos.writeObject(tPartieReq);
+            tPartieReq.send(os);
+            //oos.writeObject(tPartieReq);
 
             /********* La réponse PARTIE *******/
             TPartieRep tPartieRep = new TPartieRep();
-            tPartieRep = (TPartieRep) ois.readObject();
+            //tPartieRep = (TPartieRep) ois.readObject();
+            tPartieRep.recive(is);
             name_adversaire = tPartieRep.getNomAdvers();
             ma_coulPion = tPartieRep.getCoulPion();
 
@@ -71,8 +73,8 @@ public class Client extends Newton {
                     /************ @TODO A récuprer de puis le Moteur IA *************/
                     mon_tcoup = TCoup.POSE; // POSE | DEPL (Réceperation depuis le Moteur IA)
 
-                    TLg ma_ligne = A;
-                    TCol ma_clonne = UN;
+                    TLg ma_ligne = F;
+                    TCol ma_clonne = TROIS;
 
                     /******************************************************************/
 
@@ -81,23 +83,27 @@ public class Client extends Newton {
                     {
                         TCase tCase = new TCase(ma_ligne, ma_clonne);
                         TPosPion tPosPion = new TPosPion(ma_coulPion, tCase);
-                        mes_param = new Param(tPosPion);
+                        TDeplPion tDeplPion = new TDeplPion();
+                        mes_param = new Param(tPosPion, tDeplPion);
                     }
                     else
                     {
                         TDeplPion tDeplPion = new TDeplPion(ma_coulPion, ma_clonne, ma_ligne);
-                        mes_param = new Param(tDeplPion);
+                        TPosPion tPosPion = new TPosPion();
+                        mes_param = new Param(tPosPion, tDeplPion);
                     }
 
                     TIdReq ma_requete_coup = COUP;
                     TPropCoup ma_tPropCoup_client = CONT; // A modifier  on le récuper depuis le Moteur IA
                     TCoupReq ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, mes_param, ma_tPropCoup_client);
-                    oos.writeObject(ma_tCoupReq);
+                    ma_tCoupReq.send(os);
+                    //oos.writeObject(ma_tCoupReq);
 
                     /******** Réponse COUP ***********/
 
-                    TCoupRep mon_tCoupRep ;
-                    mon_tCoupRep  = (TCoupRep) ois.readObject();
+                    TCoupRep mon_tCoupRep = new TCoupRep();
+                    mon_tCoupRep.recive(is);
+                    //mon_tCoupRep  = (TCoupRep) ois.readObject();
                     TCodeRep mon_tCodeRep = mon_tCoupRep .getErr();
                     TValCoup mon_tValCoup = mon_tCoupRep .getValidCoup();
                     TPropCoup mon_tPropCoup_serveur = mon_tCoupRep.getPropCoup();
@@ -105,13 +111,13 @@ public class Client extends Newton {
                     if(mon_tPropCoup_serveur == GAGNE )
                     {
                         mes_parties_gagnees++;
-                        affichageresultat(1, num_partie, name_joueur);
+                        affichageresultat(1, num_partie, name1);
                         num_partie++;
                         continue;
                     }
                     else if(mon_tPropCoup_serveur == NUL)
                     {
-                        affichageresultat(0, num_partie, name_joueur);
+                        affichageresultat(0, num_partie, name1);
                         num_partie++;
                         continue;
                     }
@@ -140,8 +146,9 @@ public class Client extends Newton {
                             System.out.println(" Validation de la requete ");
                             if(mon_tValCoup == TValCoup.VALID)
                             {
-                                TCoupRep adv_tCoupRep ;
-                                adv_tCoupRep  = (TCoupRep) ois.readObject();
+                                TCoupRep adv_tCoupRep = new TCoupRep();
+                                adv_tCoupRep.recive(is);
+                                //adv_tCoupRep  = (TCoupRep) ois.readObject();
                                 TCodeRep adv_tCodeRep = adv_tCoupRep .getErr();
                                 TValCoup adv_tValCoup = adv_tCoupRep .getValidCoup();
                                 TPropCoup adv_tPropCoup_serveur = adv_tCoupRep.getPropCoup();
@@ -158,7 +165,9 @@ public class Client extends Newton {
 
                                 if(adv_tValCoup == TValCoup.VALID)
                                 {
-                                    TCoupReq adv_tCoupReq = (TCoupReq) ois.readObject();
+                                    //TCoupReq adv_tCoupReq = (TCoupReq) ois.readObject();
+                                    TCoupReq adv_tCoupReq = new TCoupReq();
+                                    adv_tCoupReq.recive(is);
                                     TIdReq adv_id_req = adv_tCoupReq.getIdRequest();
                                     int adv_num_partie = adv_tCoupReq.getNumPartie();
                                     TCoup adv_tcoup = adv_tCoupReq.getTypeCoup();
@@ -210,8 +219,9 @@ public class Client extends Newton {
                 else
                 {
 
-                    TCoupRep adv_tCoupRep;
-                    adv_tCoupRep = (TCoupRep) ois.readObject();
+                    TCoupRep adv_tCoupRep = new TCoupRep();
+                    adv_tCoupRep.recive(is);
+                    //adv_tCoupRep = (TCoupRep) ois.readObject();
                     TCodeRep adv_tCodeRep = adv_tCoupRep.getErr();
                     TValCoup adv_tValCoup = adv_tCoupRep.getValidCoup();
                     TPropCoup adv_tPropCoup_serveur = adv_tCoupRep.getPropCoup();
@@ -227,7 +237,7 @@ public class Client extends Newton {
                         num_partie++;
                         continue;
                     } else if (adv_tPropCoup_serveur == PERDU) {
-                        affichageresultat(1, num_partie, name_joueur);
+                        affichageresultat(1, num_partie, name1);
                         mes_parties_gagnees++;
                         num_partie++;
                         continue;
@@ -236,7 +246,9 @@ public class Client extends Newton {
 
 
                     if (adv_tValCoup == TValCoup.VALID) {
-                        TCoupReq adv_tCoupReq = (TCoupReq) ois.readObject();
+                        //TCoupReq adv_tCoupReq = (TCoupReq) ois.readObject();
+                        TCoupReq adv_tCoupReq = new TCoupReq();
+                        adv_tCoupReq.recive(is);
                         TIdReq adv_id_req = adv_tCoupReq.getIdRequest();
                         int adv_num_partie = adv_tCoupReq.getNumPartie();
                         TCoup adv_tcoup = adv_tCoupReq.getTypeCoup();
@@ -267,7 +279,7 @@ public class Client extends Newton {
 
                     } else if (adv_tValCoup == TValCoup.TIMEOUT || adv_tValCoup == TValCoup.TRICHE) {
                         mes_parties_gagnees++;
-                        affichageresultat(1, num_partie, name_joueur);
+                        affichageresultat(1, num_partie, name1);
                         num_partie++;
                         continue;
                     }
@@ -284,28 +296,34 @@ public class Client extends Newton {
 
                     /******************************************************************/
 
-
                     if(mon_tcoup == TCoup.POSE)
                     {
                         TCase tCase = new TCase(ma_ligne, ma_clonne);
                         TPosPion tPosPion = new TPosPion(ma_coulPion, tCase);
-                        mes_param = new Param(tPosPion);
+                        TDeplPion tDeplPion = new TDeplPion();
+                        mes_param = new Param(tPosPion, tDeplPion);
                     }
                     else
                     {
                         TDeplPion tDeplPion = new TDeplPion(ma_coulPion, ma_clonne, ma_ligne);
-                        mes_param = new Param(tDeplPion);
+                        TPosPion tPosPion = new TPosPion();
+                        mes_param = new Param(tPosPion, tDeplPion);
                     }
+
 
                     TIdReq ma_requete_coup = COUP;
                     TPropCoup ma_tPropCoup_client = CONT; // A modifier  on le récuper depuis le Moteur IA
                     TCoupReq ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, mes_param, ma_tPropCoup_client);
-                    oos.writeObject(ma_tCoupReq);
+
+                    ma_tCoupReq.send(os);
+
+                    //oos.writeObject(ma_tCoupReq);
 
                     /******** Réponse COUP ***********/
 
-                    TCoupRep mon_tCoupRep ;
-                    mon_tCoupRep  = (TCoupRep) ois.readObject();
+                    TCoupRep mon_tCoupRep = new TCoupRep() ;
+                    mon_tCoupRep.recive(is);
+                    //mon_tCoupRep  = (TCoupRep) ois.readObject();
                     TCodeRep mon_tCodeRep = mon_tCoupRep .getErr();
                     TValCoup mon_tValCoup = mon_tCoupRep .getValidCoup();
                     TPropCoup mon_tPropCoup_serveur = mon_tCoupRep.getPropCoup();
@@ -313,13 +331,13 @@ public class Client extends Newton {
                     if(mon_tPropCoup_serveur == GAGNE )
                     {
                         mes_parties_gagnees++;
-                        affichageresultat(1, num_partie, name_joueur);
+                        affichageresultat(1, num_partie, name1);
                         num_partie++;
                         continue;
                     }
                     else if(mon_tPropCoup_serveur == NUL)
                     {
-                        affichageresultat(0, num_partie, name_joueur);
+                        affichageresultat(0, num_partie, name1);
                         num_partie++;
                         continue;
                     }
@@ -367,11 +385,11 @@ public class Client extends Newton {
 
         } catch (UnknownHostException e) {
             System.out.println("Unknown host" + e);
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             System.out.println("IO exception" + e);
         }
     }
-    public static void affichageresultat(int joueur, int partie, char[] name)
+    public static void affichageresultat(int joueur, int partie, String name)
     {
         if(joueur == 0)
         {
@@ -381,5 +399,26 @@ public class Client extends Newton {
         {
             System.out.println("Le joueur ("+name+") a gagné la partie "+partie);
         }
+    }
+
+    @Override
+    public int size() {
+        return 0;
+    }
+
+    @Override
+    public void putInBuffer(ByteBuffer buffer) {
+
+    }
+
+    @Override
+    public void send(OutputStream os) throws IOException {
+
+    }
+
+
+    @Override
+    public void recive(InputStream is) throws IOException {
+
     }
 }
