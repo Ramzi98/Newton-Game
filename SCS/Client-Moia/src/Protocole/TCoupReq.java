@@ -77,7 +77,7 @@ public class TCoupReq extends Newton{
 
     @Override
     public int size() {
-        return 40;
+        return 28;
     }
 
     @Override

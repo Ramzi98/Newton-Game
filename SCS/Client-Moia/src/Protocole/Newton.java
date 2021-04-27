@@ -70,8 +70,6 @@ public abstract class Newton {
         return bytes;
     }
 
-
-
     public byte[] intToBytes(int value) {
         return new byte[] {
                 (byte) (value) ,
