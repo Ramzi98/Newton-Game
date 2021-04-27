@@ -422,3 +422,6 @@ etatGagnant(Grille,Player):-
 	contrainte(G2,G2),
 	Player is 2,
 	!.
+
+
+
