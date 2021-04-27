@@ -13,6 +13,11 @@ int main(int argc, char** argv) {
        sizeAddr,        /* taille de l'adresse d'une socket */
        err,
        nfsd;
+       fd_set readSet;
+
+ struct timeval tv;
+tv.tv_sec = TIME_MAX* 1000;
+tv.tv_usec = 0;
 
   TCodeReq codeReq;
   
@@ -55,6 +60,10 @@ int main(int argc, char** argv) {
       perror("(serveurSelect) erreur dans select");
       /* shutdown + close */
   }
+
+  FD_ZERO(&readSet) ;  // initialisation à zéro
+  FD_SET(sockTrans1, &readSet);
+  FD_SET(sockTrans2, &readSet);
 
   
 
@@ -121,11 +130,12 @@ int main(int argc, char** argv) {
 
      while(1){
 
-          
-          struct timeval tv;
-          tv.tv_sec = timeout;
-          tv.tv_usec = 0;
-          setsockopt(sockTrans1, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+          int retval = select(nfsd1, &sockTrans1, NULL, NULL, &tv); 
+          if(retval <= 0 ){
+
+            printf("error");
+            /*send response timeout*/
+          }
           err = recv(sockTrans1, &reqCoup,sizeof(codeReq), MSG_PEEK);
           if(err <= 0){
 
@@ -137,6 +147,12 @@ int main(int argc, char** argv) {
 
           if(reqCoup == COUP){
 
+          int retval = select(nfsd1, &sockTrans1, NULL, NULL, &tv); 
+          if(retval <= 0 ){
+
+            printf("error");
+            /*send response timeout*/
+          }
           err = recv(sockTrans1, &reqCoup,sizeof(TCoupReq), 0);
           if(err <= 0){
 
@@ -220,8 +236,13 @@ int main(int argc, char** argv) {
       /*-------------- Recevoir le coup du joueur 2 ---------- */
     
 
-          setsockopt(sockTrans2, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
-          err = recv(sockTrans2, &reqCoup,sizeof(codeReq), MSG_PEEK);
+        int retval = select(nfsd1, &sockTrans2, NULL, NULL, &tv); 
+          if(retval <= 0 ){
+
+            printf("error");
+            /*send response timeout*/
+          }         
+         err = recv(sockTrans2, &reqCoup,sizeof(codeReq), MSG_PEEK);
           if(err <= 0){
 
             perror("(serveurR) erreur sur le send");
@@ -232,6 +253,12 @@ int main(int argc, char** argv) {
 
           if(reqCoup == COUP){
 
+          int retval = select(nfsd1, &sockTrans2, NULL, NULL, &tv); 
+          if(retval <= 0 ){
+
+            printf("error");
+            /*send response timeout*/
+          }
           err = recv(sockTrans2, &reqCoup,sizeof(TCoupReq), 0);
           if(err <= 0){
 
@@ -320,10 +347,14 @@ int main(int argc, char** argv) {
 
       while(1){
 
-         struct timeval tv;
-          tv.tv_sec = timeout;
-          tv.tv_usec = 0;
-          setsockopt(sockTrans2, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+         
+          int retval = select(nfsd1, &sockTrans2, NULL, NULL, &tv); 
+          if(retval <= 0 ){
+
+            printf("error");
+            /*send response timeout*/
+          }
+
           err = recv(sockTrans2, &reqCoup,sizeof(codeReq), MSG_PEEK);
           if(err <= 0){
 
@@ -335,6 +366,12 @@ int main(int argc, char** argv) {
 
           if(reqCoup == COUP){
 
+        int retval = select(nfsd1, &sockTrans2, NULL, NULL, &tv); 
+          if(retval <= 0 ){
+
+            printf("error");
+            /*send response timeout*/
+          }
           err = recv(sockTrans2, &reqCoup,sizeof(TCoupReq), 0);
           if(err <= 0){
 
@@ -418,7 +455,12 @@ int main(int argc, char** argv) {
       /*-------------- Recevoir le coup du joueur 1 ---------- */
     
 
-          setsockopt(sockTrans1, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+        int retval = select(nfsd1, &sockTrans1, NULL, NULL, &tv); 
+                  if(retval <= 0 ){
+
+                    printf("error");
+                    /*send response timeout*/
+                  }
           err = recv(sockTrans1, &reqCoup,sizeof(codeReq), MSG_PEEK);
           if(err <= 0){
 
@@ -430,6 +472,12 @@ int main(int argc, char** argv) {
 
           if(reqCoup == COUP){
 
+          int retval = select(nfsd1, &sockTrans1, NULL, NULL, &tv); 
+          if(retval <= 0 ){
+
+            printf("error");
+            /*send response timeout*/
+          }
           err = recv(sockTrans1, &reqCoup,sizeof(TCoupReq), 0);
           if(err <= 0){
 

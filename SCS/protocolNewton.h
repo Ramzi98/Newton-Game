@@ -98,6 +98,6 @@ typedef struct {
   TCodeRep  err;            /* Code de retour */
   TValCoup  validCoup;      /* Validite du coup */
   TPropCoup propCoup;       /* Propriete du coup suite a la validation de l'arbitre */
-} TCoupRep;
+} TCodeRep;
 
 #endif
