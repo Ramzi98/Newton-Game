@@ -276,6 +276,15 @@ deplacementPoche(Grille, Player, NVGrille) :-
 	%%% Grille : Grille courante pendant le parcour  
 	%%% GrilleInit : la grille au debut de parcour avec toutes les elements  
 
+
+deplacementN(Grille, Player, NVGrille):-deplacement(Grille, Player, NVGrille).
+
+deplacementN(Grille, Player, NVGrille):-deplacementPoche(Grille, Player, NVGrille).
+
+
+%insereC(Grille,Player,NvGrille):-
+
+
 contrainteVerticale([],_) :- 
 	fail,
 	!.

@@ -18,6 +18,11 @@ getLigneElements(Fin,Fin,L,PG,0) :-
         \+member([[Fin,L],_],PG),
         !.
 
+getLigneElements(Debut,_,L,PG,0) :-
+        \+member([[Debut,L],_],PG),
+        !.
+
+
 getLigneElements(Debut,Fin,L,PG,E) :-
         member([[Debut,L],_],PG),
         NvDebut is Debut+1,
@@ -32,6 +37,10 @@ getColElements(Fin,Fin,C,PG,1) :-
 
 getColElements(Fin,Fin,C,PG,0) :-
         \+member([[C,Fin],_],PG),
+        !.
+
+getColElements(Debut,_,C,PG,0) :-
+        \+member([[C,Debut],_],PG),
         !.
 
 getColElements(Debut,Fin,C,PG,E) :-
@@ -89,8 +98,8 @@ nbNSigne(PG, N, R) :-
         getLigneElements(1,N,1,PG,R6), %% R6 = 1 si on a N Element dans la ligne 1
 
         %%% Vérification des Colonnes
-        M1 is 6 - N,
-        M2 is 5 - N,
+        M1 is 6 - N + 1,
+        M2 is 5 - N + 1,
         getColElements(6,M1,1,PG,R7), %% R7 = 1 si on a N Element dans la Colonne 1 en commancant depuis ligne 6
         getColElements(5,M2,1,PG,R8), %% R8 = 1 si on a N Element dans la Colonne 1 en commancant depuis ligne 5
         getColElements(6,M1,2,PG,R9),
@@ -113,6 +122,8 @@ nbNSigne(PG, N, R) :-
 % Vrai si la Grille contient R lignes ou colonnes ou diagonales comportant 1 Pion
 nb1Signe(PG, R) :-
         nbNSigne(PG, 1, R).
+
+%nb2Signe([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[2,6],b],[[2,5],b]],E).
 
 % Vrai si la Grille contient R lignes ou colonnes ou diagonales comportant 2 Pion
 nb2Signe(PG, R) :-
@@ -150,119 +161,109 @@ evalue(GrillePlayer, _GrilleAdversaire, Prof, Eval) :-
         !.
 
 evalue(GrillePlayer, GrilleAdversaire, _Prof, Eval) :-
-        nb4Signe(GrillePlayer, NB4),
-        nb4Signe(GrilleAdversaire, NB4Adv),
-        nb3Signe(GrillePlayer, NB3),
-        nb3Signe(GrilleAdversaire, NB3Adv),
+        %nb1Signe(GrillePlayer, NB1),
+        %nb1Signe(GrilleAdversaire, NB1Adv),
         nb2Signe(GrillePlayer, NB2),
         nb2Signe(GrilleAdversaire, NB2Adv),
-        nb1Signe(GrillePlayer, NB1),
-        nb1Signe(GrilleAdversaire, NB1Adv),
-        Eval is  4 * (NB4 - NB4Adv) + 3 * (NB3 - NB3Adv) + 2 * (NB2 - NB2Adv) + 1 * (NB1 - NB1Adv).
+        nb3Signe(GrillePlayer, NB3),
+        nb3Signe(GrilleAdversaire, NB3Adv),
+        nb4Signe(GrillePlayer, NB4),
+        nb4Signe(GrilleAdversaire, NB4Adv),
+        %Eval is  4 * (NB4 - NB4Adv) + 3 * (NB3 - NB3Adv) + 2 * (NB2 - NB2Adv) + 1 * (NB1 - NB1Adv),
+        Eval is  4 * (NB4 - NB4Adv) + 3 * (NB3 - NB3Adv) + 2 * (NB2 - NB2Adv),
+        !.
         
 evalue(_GrillePlayer, _GrilleAdversaire, _Prof, 0) :- !. %% A enlver probablement
 
+%evalue([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]], [[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]], Prof, Eval).
+%evalue([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[2,6],b],[[2,5],b]], [[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r],[[1,6],r],[[1,5],r]], 
+%2, Eval).
+%Eval = 0.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MIN MAX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-
-
-
-
-
-
-% R = 1 si la ligne du Plateau débutant (de gauche à droite) par Dep contient N fois ce Signe
-nbSigneLigne(SousPlateau, Dep, Signe, N, 1) :-
-        Dep2 is Dep + 1,
-        Dep3 is Dep + 2,
-        Dep4 is Dep + 3,
-        Dep5 is Dep + 4,
-        nth1(Dep, SousPlateau, C1),
-        nth1(Dep2, SousPlateau, C2),
-        nth1(Dep3, SousPlateau, C3),
-        nth1(Dep4, SousPlateau, C4),
-        nth1(Dep5, SousPlateau, C5),
-        creerListeSigne(N, Signe, L),
-        permutation(L, [C1,C2,C3,C4,C5]),
+%minCoups([[[[[1,6],b],6]],[[[[2,4],b],7]],[[[[3,6],b],2]],[[[[4,6],b],2]],[[[[5,6],b],2]]],[10,10],S).
+minCoups([], Meilleur, Meilleur).
+minCoups([[[Coup,Eval]]|L], [_MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]) :-
+        Eval =< MeillEvalActuel,
+        minCoups(L, [Coup,Eval], [MeillCoup,MeillEval]),
         !.
 
-nbSigneLigne(_, _, _, _, 0).
+minCoups([[[_,_]]|L], [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]) :-
+        minCoups(L, [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]).
 
-% R = 1 si la colonne du Plateau débutant (de haut en bas) par Dep contient N fois ce Signe
-nbSigneCol(Plateau, Dep, Signe, N, 1) :-
-        Dep2 is Dep + 3,
-        Dep3 is Dep + 6,
-        nth1(Dep, Plateau, C1),
-        nth1(Dep2, Plateau, C2),
-        nth1(Dep3, Plateau, C3),
-        creerListeSigne(N, Signe, L),
-        permutation(L, [C1,C2,C3]),
+%maxCoups([[[[[1,6],b],6]],[[[[2,4],b],7]],[[[[3,6],b],2]],[[[[4,6],b],2]],[[[[5,6],b],2]]],[0,0],S).
+maxCoups([], Meilleur, Meilleur).
+maxCoups([[[Coup,_]]|L], [_MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]) :-
+        Eval >= MeillEvalActuel,
+        maxCoups(L, [Coup,Eval], [MeillCoup,MeillEval]),
         !.
-nbSigneCol(_, _, _, _, 0).
 
-% R = 1 si la diagonale du Plateau débutant à la case 1 contient N fois ce Signe
-nbSigneDiag1(Plateau, Signe, N, 1) :-
-        Dep is 1,
-        Dep2 is Dep + 4,
-        Dep3 is Dep + 8,
-        nth1(Dep, Plateau, C1),
-        nth1(Dep2, Plateau, C2),
-        nth1(Dep3, Plateau, C3),
-        creerListeSigne(N, Signe, L),
-        permutation(L, [C1,C2,C3]),
+maxCoups([[[_,Eval]]|L], [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]) :-
+        maxCoups(L, [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]).
+
+
+%getCoupPossible([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, Coup).
+
+
+
+getCoupPossible(Grille,1,NvGrille,Coup):-
+
+	deplacementN(Grille,1,NvGrille),
+	NvGrille = [G1,_],
+	G1 = [Coup|_].
+
+
+getCoupPossible(Grille,2,Coup):-
+
+	deplacementN(Grille,2,NvGrille),
+	NvGrille = [_,G2],
+	G2 = [Coup|_].
+
+
+getCoupEval(Grille,1,CoupEval):-
+	getCoupPossible(Grille, 1, NvGrille,Coup),
+	NvGrille = [G1|G2],
+	findall([Coup,Eval],evalue(G1, G2,1, Eval), CoupEval).
+
+
+getCoupEval(Grille,2,CoupEval):-
+	getCoupPossible(Grille, 2, NvGrille,Coup),
+	NvGrille = [G1|G2],
+	findall([Coup,Eval],evalue(G1, G2,1, Eval), CoupEval).
+
+getCoupList(Grille,Player,CoupListe):-
+
+        findall(CoupL,getCoupEval(Grille,Player,CoupL),CoupListe).
+
+minEvalPlateaux([], _SigneJoueur, _SigneAdv, _Tour, _TourMax, _Prof, _ProfParcourue, _Alpha, _Beta, Acc, Acc).
+minEvalPlateaux([[_Plateau,_Case,_Type]|_L], _SigneJoueur, _SigneAdv, _Tour, _TourMax, _Prof, _ProfParcourue, Alpha, Beta, Acc, Acc) :-
+        Alpha >= Beta,
         !.
-nbSigneDiag1(_, _, _, 0).
-
-% R = 1 si la diagonale du Plateau débutant à la case 5 contient N fois ce Signe
-nbSigneDiag2(Plateau, Signe, N, 1) :-
-        Dep is 3,
-        Dep2 is Dep + 2,
-        Dep3 is Dep + 4,
-        nth1(Dep, Plateau, C1),
-        nth1(Dep2, Plateau, C2),
-        nth1(Dep3, Plateau, C3),
-        creerListeSigne(N, Signe, L),
-        permutation(L, [C1,C2,C3]),
+    
+minEvalPlateaux([[Plateau,Case,Type]|L], SigneJoueur, SigneAdv, Tour, TourMax, 0, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+        evalue([Plateau,Case,Type], SigneJoueur, SigneAdv, ProfParcourue, Eval),
+        max_member(Alpha2, [Alpha,Eval]),
+        minEvalPlateaux(L, SigneJoueur, SigneAdv, Tour, TourMax, 0, ProfParcourue, Alpha2, Beta, [[[Plateau,Case,Type],Eval]|Acc], CoupsEvalues),
         !.
-nbSigneDiag2(_, _, _, 0).
 
-nbNSigne(Plateau, Signe, N, R):-
-        nbSigneLigne(Plateau, 1, Signe, N, R1),
-        nbSigneLigne(Plateau, 4, Signe, N, R2),
-        nbSigneLigne(Plateau, 7, Signe, N, R3),
-        nbSigneCol(Plateau, 1, Signe, N, R4),
-        nbSigneCol(Plateau, 2, Signe, N, R5),
-        nbSigneCol(Plateau, 3, Signe, N, R6),
-        nbSigneDiag1(Plateau, Signe, N, R7),
-        nbSigneDiag2(Plateau, Signe, N, R8),
-        R is R1 + R2 + R3  + R4 + R5 + R6 + R7 + R8.
-
-% Vrai si le Plateau contient R lignes/colonnes/diagonales comportant 1 fois ce Signe
-nb1Signe(Plateau, Signe, R) :-
-        nbNSigne(Plateau, Signe, 1, R).
-
-% Vrai si le Plateau contient R lignes/colonnes/diagonales comportant 2 fois ce Signe
-nb2Signe(Plateau, Signe, R) :-
-        nbNSigne(Plateau, Signe, 2, R).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% fonction d'évaluation d'un plateau
-% 1000 si plateau gagnant, -1000 si perdant, 0 si match nul
-% Sinon : f(Plateau) = 2 * (NB2 - NB2Adv) + 1 * (NB1 - NB1Adv)
-% Avec NB2 : nb de lignes/col/diag comportant 2 fois notre Signe
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-evalue([_,_,p], _SigneJoueur, _SigneAdv, Prof, Eval) :- 
-        Eval is -1000 + Prof,
+minEvalPlateaux([[Plateau,Case,g]|L], SigneJoueur, SigneAdv, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+        evalue([Plateau,Case,g], SigneJoueur, SigneAdv, ProfParcourue, Eval),
+        max_member(Alpha2, [Alpha,Eval]),
+        minEvalPlateaux(L, SigneJoueur, SigneAdv, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[Plateau,Case,g],Eval]|Acc], CoupsEvalues),
         !.
-evalue([_,_,g], _SigneJoueur, _SigneAdv, Prof, Eval) :-
-        Eval is 1000 - Prof,
+
+minEvalPlateaux([[Plateau,Case,p]|L], SigneJoueur, SigneAdv, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+        evalue([Plateau,Case,p], SigneJoueur, SigneAdv, ProfParcourue, Eval),
+        max_member(Alpha2, [Alpha,Eval]),
+        minEvalPlateaux(L, SigneJoueur, SigneAdv, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[Plateau,Case,p],Eval]|Acc], CoupsEvalues),
         !.
-evalue([_,_,n], _SigneJoueur, _SigneAdv, _Prof, 0) :- !.
-evalue([Plateau,_,_], SigneJoueur, SigneAdv, _Prof, Eval) :-
-        nb2Signe(Plateau, SigneJoueur, NB2),
-        nb2Signe(Plateau,SigneAdv, NB2Adv),
-        nb1Signe(Plateau, SigneJoueur, NB1),
-        nb1Signe(Plateau,SigneAdv, NB1Adv),
-        Eval is  2 * (NB2 - NB2Adv) + 1 * (NB1 - NB1Adv).
+
+minEvalPlateaux([[Plateau,Case,Type]|L], SigneJoueur, SigneAdv, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+        plateauxSuivants(Plateau, SigneAdv, SigneJoueur, SigneAdv, Tour, TourMax, R),
+        Prof2 is Prof - 1,
+        ProfParcourue2 is ProfParcourue + 1,
+        maxEvalPlateaux(R, SigneJoueur, SigneAdv, Tour, TourMax, Prof2, ProfParcourue2, Alpha, Beta, [], CoupsMaxEvalues),
+        minCoups(CoupsMaxEvalues, [_,1000], [_MeillCoup,MeillEval]),
+        max_member(Alpha2, [Alpha,MeillEval]),
+        minEvalPlateaux(L, SigneJoueur, SigneAdv, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[Plateau,Case,Type],MeillEval]|Acc], CoupsEvalues).
