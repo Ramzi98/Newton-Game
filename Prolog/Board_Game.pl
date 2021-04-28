@@ -194,7 +194,7 @@ deplacement(Grille, Player, NVGrille) :-
 	grilleinitiale(Player, PGrille),
 	getCaseLigneH(PGrille, Case),
 	deplacable(Case, Grille), % a enlever proablement 
-	movepiece(Case, NvCase,Player ,Couleur,Grille , NVGrille).
+	movepiece(Case, _NvCase,Player ,Couleur,Grille , NVGrille).
 
 
 %%%%% allCase([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],r,1,Case).
@@ -422,6 +422,3 @@ etatGagnant(Grille,Player):-
 	contrainte(G2,G2),
 	Player is 2,
 	!.
-
-
-

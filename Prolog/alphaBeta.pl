@@ -9,13 +9,13 @@
 
 %% getLigneElements(1,3,8,[[[1,8],b],[[2,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],E).
 
+%%% Calcule de gauche a droite en peut ajouter une autre de droite a gauche
 getLigneElements(Fin,Fin,L,PG,1) :-
         member([[Fin,L],_],PG),
         !.
 
 getLigneElements(Fin,Fin,L,PG,0) :-
         \+member([[Fin,L],_],PG),
-        fail,
         !.
 
 getLigneElements(Debut,Fin,L,PG,E) :-
@@ -32,7 +32,6 @@ getColElements(Fin,Fin,C,PG,1) :-
 
 getColElements(Fin,Fin,C,PG,0) :-
         \+member([[C,Fin],_],PG),
-        fail,
         !.
 
 getColElements(Debut,Fin,C,PG,E) :-
@@ -81,9 +80,91 @@ getDiagElements(C,L,N,PG,E) :-
         !.
 
 
-nbNSigne(PG, N, R).
-        %getLigneElements(1,2,)
+nbNSigne(PG, N, R) :-
+        getLigneElements(1,N,6,PG,R1), %% R1 = 1 si on a N Element dans la ligne 6 
+        getLigneElements(1,N,5,PG,R2), %% R2 = 1 si on a N Element dans la ligne 5
+        getLigneElements(1,N,4,PG,R3), %% R3 = 1 si on a N Element dans la ligne 4 
+        getLigneElements(1,N,3,PG,R4), %% R4 = 1 si on a N Element dans la ligne 3 
+        getLigneElements(1,N,2,PG,R5), %% R5 = 1 si on a N Element dans la ligne 2 
+        getLigneElements(1,N,1,PG,R6), %% R6 = 1 si on a N Element dans la ligne 1
 
+        %%% Vérification des Colonnes
+        M1 is 6 - N,
+        M2 is 5 - N,
+        getColElements(6,M1,1,PG,R7), %% R7 = 1 si on a N Element dans la Colonne 1 en commancant depuis ligne 6
+        getColElements(5,M2,1,PG,R8), %% R8 = 1 si on a N Element dans la Colonne 1 en commancant depuis ligne 5
+        getColElements(6,M1,2,PG,R9),
+        getColElements(5,M2,2,PG,R10),
+        getColElements(6,M1,3,PG,R11),
+        getColElements(5,M2,3,PG,R12),
+        getColElements(6,M1,4,PG,R13),
+        getColElements(5,M2,4,PG,R14),
+        getColElements(6,M1,5,PG,R15),
+        getColElements(5,M2,5,PG,R16),
+
+        %%% Vérification des Diagonales
+        getDiagElements(1,6,N,PG,R17), %% R17 = 1 si on a N Element dans la Diagonale qui commence de (1,6)
+        getDiagElements(1,5,N,PG,R18), %% R18 = 1 si on a N Element dans la Diagonale qui commence de (1,5)
+        getDiagElements(5,6,N,PG,R19), %% R19 = 1 si on a N Element dans la Diagonale qui commence de (5,6)
+        getDiagElements(5,5,N,PG,R20), %% R20 = 1 si on a N Element dans la Diagonale qui commence de (5,5)
+
+        R is R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + R9 + R10 + R11 + R12 + R13 + R14 + R15 + R16 + R17 + R18 + R19 + R20.
+
+% Vrai si la Grille contient R lignes ou colonnes ou diagonales comportant 1 Pion
+nb1Signe(PG, R) :-
+        nbNSigne(PG, 1, R).
+
+% Vrai si la Grille contient R lignes ou colonnes ou diagonales comportant 2 Pion
+nb2Signe(PG, R) :-
+        nbNSigne(PG, 2, R).
+
+% Vrai si la Grille contient R lignes ou colonnes ou diagonales comportant 3 Pion
+nb3Signe(PG, R) :-
+        nbNSigne(PG, 3, R).
+
+% Vrai si la Grille contient R lignes ou colonnes ou diagonales comportant 4 Pion
+nb4Signe(PG, R) :-
+        nbNSigne(PG, 4, R).
+
+% Vrai si la Grille contient R lignes ou colonnes ou diagonales comportant 5 Pion
+nb5Signe(PG, R) :-
+        nbNSigne(PG, 5, R).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% fonction d'évaluation d'une Grille
+% 1000 si plateau gagnant, -1000 si perdant, 0 si match nul
+% Sinon : f(Grille) = 4 * (NB4 - NB4Adv) + 3 * (NB3 - NB3Adv) + 2 * (NB2 - NB2Adv) + 1 * (NB1 - NB1Adv)
+% Avec NB4 : nb de lignes/col/diag comportant 4 fois notre Pion
+% NB4Adv : nb de lignes/col/diag comportant 4 fois le Pion de l'advarsaire
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+evalue(_GrillePlayer, GrilleAdversaire, Prof, Eval) :-
+        nb5Signe(GrilleAdversaire, NB5Adv), 
+        NB5Adv >= 1,
+        Eval is -1000 + Prof,
+        !.
+evalue(GrillePlayer, _GrilleAdversaire, Prof, Eval) :-
+        nb5Signe(GrillePlayer, NB5), 
+        NB5 >= 1,
+        Eval is 1000 - Prof,
+        !.
+
+evalue(GrillePlayer, GrilleAdversaire, _Prof, Eval) :-
+        nb4Signe(GrillePlayer, NB4),
+        nb4Signe(GrilleAdversaire, NB4Adv),
+        nb3Signe(GrillePlayer, NB3),
+        nb3Signe(GrilleAdversaire, NB3Adv),
+        nb2Signe(GrillePlayer, NB2),
+        nb2Signe(GrilleAdversaire, NB2Adv),
+        nb1Signe(GrillePlayer, NB1),
+        nb1Signe(GrilleAdversaire, NB1Adv),
+        Eval is  4 * (NB4 - NB4Adv) + 3 * (NB3 - NB3Adv) + 2 * (NB2 - NB2Adv) + 1 * (NB1 - NB1Adv).
+        
+evalue(_GrillePlayer, _GrilleAdversaire, _Prof, 0) :- !. %% A enlver probablement
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
 
 
 
