@@ -164,8 +164,9 @@ nextLigneVide(Case, Grille, NvCase) :-
 
 movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 	Grille = [G1, G2],
-	grilleinitiale(Player, PGrille),
-	PGrille = G1,
+	Player = 1,
+	%grilleinitiale(Player, PGrille),
+	%PGrille = G1,
 	retirerCase(Case, G1, NVG1),
 	NVG = [NVG1, G2],
 	nextLigneVide(Case, NVG, NvCase),
@@ -177,8 +178,9 @@ movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 
 movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 	Grille = [G1, G2],
-	grilleinitiale(Player, PGrille),
-	PGrille = G2,
+	Player = 2,
+	%grilleinitiale(Player, PGrille),
+	%PGrille = G2,
 	retirerCase(Case, G2, NVG2),
 	NVG = [G1, NVG2],
 	nextLigneVide(Case, NVG, NvCase),
@@ -188,11 +190,24 @@ movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 	NvGrille = [NVG3,NVG4].
 
 
+%deplacement([[[[1,8],b],[[3,8],b],[[1,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NvGrille).
 %Deplacement depuis la ligne H
 deplacement(Grille, Player, NVGrille) :-
 	joueurCouleur(Player, Couleur),
-	grilleinitiale(Player, PGrille),
-	getCaseLigneH(PGrille, Case),
+	%grilleinitiale(Player, PGrille),
+    Player = 1,
+	Grille = [G1,_],
+	getCaseLigneH(G1, Case),
+	deplacable(Case, Grille), % a enlever proablement 
+	movepiece(Case, _NvCase,Player ,Couleur,Grille , NVGrille).
+
+%Deplacement depuis la ligne H
+deplacement(Grille, Player, NVGrille) :-
+	joueurCouleur(Player, Couleur),
+	%grilleinitiale(Player, PGrille),
+	Player = 2,
+	Grille = [_,G2],
+	getCaseLigneH(G2, Case),
 	deplacable(Case, Grille), % a enlever proablement 
 	movepiece(Case, _NvCase,Player ,Couleur,Grille , NVGrille).
 
@@ -261,12 +276,22 @@ addCaseGrille(Grille, Couleur, Case, NVGrille) :-
 %Deplacement depuis la Poche
 deplacementPoche(Grille, Player, NVGrille) :-
 	joueurCouleur(Player, Couleur),
-	grilleinitiale(Player, PGrille),
-	nombrePionPoche(PGrille, N),
+	Player = 1,
+	Grille=[G1,_],
+	nombrePionPoche(G1, N),
 	N > 0,
 	allCase(Grille, Couleur, Case),
 	addCaseGrille(Grille, Couleur, Case, NVGrille).
 	
+%Deplacement depuis la Poche
+deplacementPoche(Grille, Player, NVGrille) :-
+	joueurCouleur(Player, Couleur),
+	Player = 2,
+	Grille=[_,G2],
+	nombrePionPoche(G2, N),
+	N > 0,
+	allCase(Grille, Couleur, Case),
+	addCaseGrille(Grille, Couleur, Case, NVGrille).
 
 	%%%% deplacement([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],1,NVG).
 	%%%% contrainteVerticale([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]],[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]]).
