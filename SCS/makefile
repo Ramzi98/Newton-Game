@@ -2,17 +2,17 @@
 #LD_FLAGS = -lsocket -lnsl
 
 # For Linux
-LD_FLAGS =
+LD_FLAGS = -fPIC
 
-all: fonctionsTCP serveur 
+all: fonctionTcp serveur 
 
-fonctionsTCP: fonctionsTCP.c fonctionsTCP.h
-	gcc -Wall -c fonctionsTCP.c -o fonctionsTCP.o
+fonctionTcp: fonctionTcp.c fonctionTcp.h
+	gcc -Wall -c fonctionTcp.c -o fonctionTcp.o $(LD_FLAGS)
 
-serveur: serveur.c fonctionsTCP.o newton.o
-	gcc -Wall serveur.c -o serveur fonctionsTCP.o newton.o
+serveur: serveur.c fonctionTcp.o newton-fPIC.o
+	gcc -Wall serveur.c -o serveur fonctionTcp.o newton-fPIC.o $(LD_FLAGS)
 
 clean:
 	rm *~ ; rm -i \#* ; rm *.o; \
-        rm clientTCP ; rm serveurTCP;
+        rm serveur;
 
