@@ -100,7 +100,7 @@ getCaseLigneH(PGrille,Case) :-
 
 
 
-%%%%%%%%%%%%%%%%% moveDown pour deplacer toutes les lignes dune colonne vers le bas %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% moveDown pour deplacer toutes les pions dune colonne vers le bas %%%%%%%%%%%%%%%%%%%%%%
 moveDown(_,[],[]).
 
 moveDown(Colonne, Grille, NvGrille) :-
