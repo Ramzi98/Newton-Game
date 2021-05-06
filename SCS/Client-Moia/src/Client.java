@@ -68,6 +68,7 @@ public class Client extends Newton {
             name_adversaire = tPartieRep.getNomAdvers();
             ma_coulPion = tPartieRep.getCoulPion();
 
+	   System.out.println("L'adversaire est"+name_adversaire);
 
             while(num_partie <= 2)
             {
