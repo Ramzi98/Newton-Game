@@ -302,9 +302,13 @@ deplacementPoche(Grille, Player, NVGrille) :-
 	%%% GrilleInit : la grille au debut de parcour avec toutes les elements  
 
 
-deplacementN(Grille, Player, NVGrille):-deplacement(Grille, Player, NVGrille).
+deplacementN(Grille, Player, NVGrille, TypeDeplacement):-
+	deplacement(Grille, Player, NVGrille),
+	TypeDeplacement = d.
 
-deplacementN(Grille, Player, NVGrille):-deplacementPoche(Grille, Player, NVGrille).
+deplacementN(Grille, Player, NVGrille, TypeDeplacement):-
+	deplacementPoche(Grille, Player, NVGrille),
+	TypeDeplacement = p.
 
 
 %insereC(Grille,Player,NvGrille):-
@@ -455,4 +459,42 @@ etatGagnant(Grille,Player):-
 	Grille = [_,G2],
 	contrainte(G2,G2),
 	Player is 2,
+	!.
+
+
+%%% updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 1, r, p, NVG).
+% updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 4, b, p, NVG).
+
+%%%%%%%%%%%%%% Pose %%%%%%%%%%%%%%%%%%%
+updateGrille(Grille ,Ligne, Colonne, Couleur ,TypeCoup , NVGrille) :-
+	Grille = [G1,G2],
+	Coup = [[Colonne, Ligne], Couleur],
+	TypeCoup = p,
+	G1 = [[_,Couleur]|_],
+	NVG1 = [Coup|G1],
+	NVGrille = [NVG1,G2],
+	!.
+
+updateGrille(Grille ,Ligne, Colonne, Couleur ,TypeCoup , NVGrille) :-
+	Grille = [G1,G2],
+	Coup = [[Colonne, Ligne], Couleur],
+	TypeCoup = p,
+	G2 = [[_,Couleur]|_],
+	NVG2 = [Coup|G2],
+	NVGrille = [G1,NVG2],
+	!.
+
+%%%%%%%%%%%%%% Deplacement %%%%%%%%%%%%%%%%%%%
+updateGrille(Grille ,_NvLigne, Colonne, Couleur ,TypeCoup , NVGrille) :-
+	Couleur = b,
+	TypeCoup = d,
+	Case = [[Colonne, 8], Couleur],
+	movepiece(Case, _, 1,Couleur, Grille, NVGrille),
+	!.
+
+updateGrille(Grille ,_NvLigne, Colonne, Couleur ,TypeCoup , NVGrille) :-
+	Couleur = r,
+	TypeCoup = d,
+	Case = [[Colonne, 8], Couleur],
+	movepiece(Case, _, 2,Couleur, Grille, NVGrille),
 	!.
