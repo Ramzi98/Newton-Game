@@ -231,32 +231,32 @@ maxCoups([_|L], [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]) :-
         maxCoups(L, [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]).
 
 
-%getCoupPossible([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, Coup).
+%getCoupPossible([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NVG, Coup, TypeDepl).
 
 
 
-getCoupPossible(Grille,1,NvGrille,Coup):-
-	deplacementN(Grille,1,NvGrille),
+getCoupPossible(Grille,1,NvGrille,Coup, TypeDeplacement):-
+	deplacementN(Grille,1,NvGrille, TypeDeplacement),
 	NvGrille = [G1,_],
 	G1 = [Coup|_].
 
 
-getCoupPossible(Grille,2,NvGrille,Coup):-
-	deplacementN(Grille,2,NvGrille),
+getCoupPossible(Grille,2,NvGrille,Coup, TypeDeplacement):-
+	deplacementN(Grille,2,NvGrille, TypeDeplacement),
 	NvGrille = [_,G2],
 	G2 = [Coup|_].
 
 
 getCoupEval(Grille,1,CoupEval):-
-	getCoupPossible(Grille, 1, NvGrille,Coup),
+	getCoupPossible(Grille, 1, NvGrille,Coup, TypeDeplacement),
 	NvGrille = [G1|G2],
-	findall([NvGrille,Coup,Eval],evalue(G1, G2,1, Eval), CoupEval).
+	findall([NvGrille,Coup,Eval,TypeDeplacement],evalue(G1, G2,1, Eval), CoupEval).
 
 
 getCoupEval(Grille,2,CoupEval):-
-	getCoupPossible(Grille, 2, NvGrille,Coup),
+	getCoupPossible(Grille, 2, NvGrille,Coup, TypeDeplacement),
 	NvGrille = [G1|G2],
-	findall([NvGrille,Coup,Eval],evalue(G1, G2,1, Eval), CoupEval).
+	findall([NvGrille,Coup,Eval,TypeDeplacement],evalue(G1, G2,1, Eval), CoupEval).
 
 
 arretJoueur(Grille,Player,_Tour,_TourMax,g):-
@@ -276,17 +276,17 @@ arretJoueur(_Grille,_Player,TourMax,TourMax,n):- !.
 arretJoueur(_Grille,_Player,_Tour,_TourMax,c):- !.
 
 
-%genererCoup([[[[1,8],b],[[3,8],b],[[2,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1,79,80,NvGrille, Coup).
-genererCoup(Grille,Player,Tour,TourMax,Coup,NvGrille,TypeCoup):-
+%genererCoup([[[[1,8],b],[[3,8],b],[[2,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1,79,80,Coup ,NvGrille, TyCoup, Typdepl).
+genererCoup(Grille,Player,Tour,TourMax,Coup,NvGrille,TypeCoup,TypeDeplacement):-
 
-        getCoupPossible(Grille,Player,NvGrille,Coup),
+        getCoupPossible(Grille,Player,NvGrille,Coup, TypeDeplacement),
         TourN is Tour+1,
         arretJoueur(NvGrille,Player,TourN,TourMax,TypeCoup).
 
 %parcoursSuivant([[[[1,8],b],[[3,8],b],[[2,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1,79,80,NvGrilleList).
 parcoursSuivant(Grille,Player,Tour,TourMax,NvGrilleList):-
 
-        findall([NvGrille,Coup,TypeCoup],genererCoup(Grille,Player,Tour,TourMax,Coup,NvGrille,TypeCoup),NvGrilleList).
+        findall([NvGrille, Coup, TypeCoup, TypeDeplacement],genererCoup(Grille,Player,Tour,TourMax,Coup,NvGrille,TypeCoup ,TypeDeplacement),NvGrilleList).
 
 
 %getCoupEval([[[[1,8],b],[[3,8],b],[[2,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, Coup).
@@ -298,80 +298,81 @@ getCoupList(Grille,Player,CoupListe):-
 
 %a revoir
 minEvalPlateaux([], _Player, _Tour, _TourMax, _Prof, _ProfParcourue, _Alpha, _Beta, Acc, Acc).
-minEvalPlateaux([[[_Grille,_Coup,_TypeCoup]|_LGrille]|_L], _Player, _Tour, _TourMax, _Prof, _ProfParcourue, Alpha, Beta, Acc, Acc) :-
+minEvalPlateaux([[[_Grille,_Coup,_TypeCoup,_TypeDeplacement]|_LGrille]|_L], _Player, _Tour, _TourMax, _Prof, _ProfParcourue, Alpha, Beta, Acc, Acc) :-
         Alpha >= Beta,
         !.
     
-minEvalPlateaux([[Grille,Coup,TypeCoup]|LGrille], Player, Tour, TourMax, 0, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+minEvalPlateaux([[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille], Player, Tour, TourMax, 0, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         max_member(Alpha2, [Alpha,Eval]),
-        minEvalPlateaux(LGrille,Player, Tour, TourMax, 0, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,TypeCoup]|LGrille],Eval]|Acc], CoupsEvalues),
+        minEvalPlateaux(LGrille,Player, Tour, TourMax, 0, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille],Eval]|Acc], CoupsEvalues),
         !.
 
-minEvalPlateaux([[Grille,Coup,g]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+minEvalPlateaux([[Grille,Coup,g,TypeDeplacement]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         max_member(Alpha2, [Alpha,Eval]),
-        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,g]|LGrille],Eval]|Acc], CoupsEvalues),
+        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,g,TypeDeplacement]|LGrille],Eval]|Acc], CoupsEvalues),
         !.
 
 
-minEvalPlateaux([[Grille,Coup,p]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+minEvalPlateaux([[Grille,Coup,p,TypeDeplacement]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         max_member(Alpha2, [Alpha,Eval]),
-        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,p]|LGrille],Eval]|Acc], CoupsEvalues),
+        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,p,TypeDeplacement]|LGrille],Eval]|Acc], CoupsEvalues),
         !.
 
-minEvalPlateaux([[Grille,Coup,TypeCoup]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+minEvalPlateaux([[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         parcoursSuivant(Grille, Player, Tour, TourMax, PS),
         Prof2 is Prof - 1,
         ProfParcourue2 is ProfParcourue + 1,
         maxEvalPlateaux(PS, Player, Tour, TourMax, Prof2, ProfParcourue2, Alpha, Beta, [], CoupsMaxEvalues),
         minCoups(CoupsMaxEvalues, [_,1000], [_MeillCoup,MeillEval]),
         max_member(Alpha2, [Alpha,MeillEval]),
-        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[Grille,Coup,TypeCoup],MeillEval]|Acc], CoupsEvalues).
+        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[Grille,Coup,TypeCoup,TypeDeplacement],MeillEval]|Acc], CoupsEvalues).
 
 
 maxEvalPlateaux([], _Player, _Tour, _TourMax, _Prof, _ProfParcourue, _Alpha, _Beta, Acc, Acc).
-maxEvalPlateaux([[_Grille,_Coup,_TypeCoup]|_L], _Player, _Tour, _TourMax, _Prof, _ProfParcourue, Alpha, Beta, Acc, Acc) :-
+maxEvalPlateaux([[_Grille,_Coup,_TypeCoup,_TypeDeplacement]|_L], _Player, _Tour, _TourMax, _Prof, _ProfParcourue, Alpha, Beta, Acc, Acc) :-
         Alpha >= Beta,
         !.
-maxEvalPlateaux([[Grille,Coup,TypeCoup]|LGrille], Player, Tour, TourMax, 0, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+maxEvalPlateaux([[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille], Player, Tour, TourMax, 0, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         min_member(Beta2, [Beta,Eval]),
-        maxEvalPlateaux(LGrille, Player, Tour, TourMax, 0, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,TypeCoup],Eval]|Acc], CoupsEvalues),
+        maxEvalPlateaux(LGrille, Player, Tour, TourMax, 0, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,TypeCoup,TypeDeplacement],Eval]|Acc], CoupsEvalues),
         !.
 
-maxEvalPlateaux([[Grille,Coup,g]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+maxEvalPlateaux([[Grille,Coup,g,TypeDeplacement]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         min_member(Beta2, [Beta,Eval]),
-        maxEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,g],Eval]|Acc], CoupsEvalues),
+        maxEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,g,TypeDeplacement],Eval]|Acc], CoupsEvalues),
         !.
 
-maxEvalPlateaux([[Grille,Coup,p]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+maxEvalPlateaux([[Grille,Coup,p,TypeDeplacement]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         min_member(Beta2, [Beta,Eval]),
-        maxEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,p],Eval]|Acc], CoupsEvalues),
+        maxEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,p,TypeDeplacement],Eval]|Acc], CoupsEvalues),
         !.
 
-maxEvalPlateaux([[Grille,Coup,TypeCoup]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
+maxEvalPlateaux([[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         parcoursSuivant(Grille, Player, Tour, TourMax, PS),
         Prof2 is Prof - 1,
         ProfParcourue2 is ProfParcourue + 1,
         minEvalPlateaux(PS, Player, Tour, TourMax, Prof2, ProfParcourue2, Alpha, Beta, [], CoupsMinEvalues),
         maxCoups(CoupsMinEvalues, [_,-1000], [_MeillCoup,MeillEval]),
         min_member(Beta2, [Beta,MeillEval]),
-        maxEvalPlateaux(LGrille,Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,TypeCoup],MeillEval]|Acc], CoupsEvalues).
+        maxEvalPlateaux(LGrille,Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,TypeCoup,TypeDeplacement],MeillEval]|Acc], CoupsEvalues).
 
 %alphaBeta([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],1, 0, 80, 8, MeilleurCoup).
 %parcoursSuivant([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],1, 0, 80, 10, PS).
 %minEvalPlateaux([[[[[[1,7],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,8],r],[[3,7],r],[[5,7],r]]],[[1,7],b],c],[[[[[3,7],b],[[1,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,8],r],[[5,7],r]]],[[3,7],b],c],[[[[[5,7],b],[[1,8],b],[[3,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,8],r]]],[[5,7],b],c],[[[[[1,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[1,6],b],c],[[[[[2,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[2,6],b],c],[[[[[3,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[3,6],b],c],[[[[[4,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[4,6],b],c],[[[[[5,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[5,6],b],c]], 1, 1, 80, 9, 1, -10000, 10000, [], CoupsEvalues).,
 
+%alphaBeta([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r],[[1,6],r],[[2,6],r],[[3,6],r],[[4,6],r],[[1,6],r]]],1, 0, 80, 4, MeilleurCoup).
 
 alphaBeta(Grille,Player, Tour, TourMax, Prof, MeilleurCoup) :-
         parcoursSuivant(Grille, Player, Tour, TourMax, PS),

@@ -1,26 +1,71 @@
 import Protocole.*;
 
+import java.lang.Integer;
 import java.net.* ;
 import java.io.* ;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.Scanner;
+import org.jpl7.*;
 
 
-import static Protocole.Newton.TCol.*;
-import static Protocole.Newton.TIdReq.*;
-import static Protocole.Newton.TLg.*;
-import static Protocole.Newton.TPropCoup.*;
+
+
+
+import static Protocole.TCodeRep.*;
+import static Protocole.TCol.*;
+import static Protocole.TCoul.*;
+import static Protocole.TCoup.*;
+import static Protocole.TIdReq.*;
+import static Protocole.TLg.*;
+import static Protocole.TPropCoup.*;
+import static Protocole.TValCoup.*;
+
 
 public class Client extends Newton {
     public static void main(String [] args) {
+/*
+        Grille grille = new Grille( 1,"alphaBeta.pl");
+        CommunicationProlog comm = new CommunicationProlog(BLEU,80,1,6,grille,"alphaBeta.pl");
+
+
+
+        System.out.println("1"+grille.getGrilleTotale());
+
+        comm.coupAdversaire(POSE,DEUX,F,BLEU);
+        System.out.println("2"+grille.getGrilleTotale());
+
+
+        comm.coupAdversaire(DEPL,QUATRE,H,ROUGE);
+        System.out.println("3"+grille.getGrilleTotale());
+
+        Term meilleurCoup = comm.getMeilleurCoup();
+
+        Term NvGrille = meilleurCoup.arg(1);
+        Term Mcoup = meilleurCoup.arg(2);
+        Term LeCoup = Mcoup.arg(1);
+        Term arg2 = Mcoup.arg(2);
+        Term PropostionCoup = arg2.arg(1);
+        Term Typedepl = arg2.arg(2).arg(1);
+
+
+        System.out.println("4"+meilleurCoup);
+        System.out.println("5"+NvGrille);
+        System.out.println("6"+Mcoup);
+        System.out.println("7"+LeCoup);
+        System.out.println("8"+PropostionCoup);
+        System.out.println("9"+Typedepl);
+
+*/
+
+
+
         if (args.length!=3){
             System.out.println("arguments - host port nom_joueur");
             System.exit(1);
         }
-        Socket s ;
 
+        Socket s ;
         // References de la socket
         String hote = args[0];
         int port = Integer.parseInt(args[1]);
@@ -30,9 +75,11 @@ public class Client extends Newton {
         TCoul ma_coulPion;
         TCoup mon_tcoup;
         int num_partie = 1;
+        int mon_numjoueur;
         int mes_parties_gagnees = 0;
         int adv_parties_gagnees = 0;
         boolean new_partie = false;
+        int profondeur = 6;
 
         /******************************/
         int colonne;
@@ -68,6 +115,18 @@ public class Client extends Newton {
             name_adversaire = tPartieRep.getNomAdvers();
             ma_coulPion = tPartieRep.getCoulPion();
 
+            if (ma_coulPion == BLEU)
+            {
+                mon_numjoueur = 1;
+            }
+            else
+            {
+                mon_numjoueur = 2;
+            }
+
+            Grille grille = new Grille( mon_numjoueur,"alphaBeta.pl");
+            CommunicationProlog comm = new CommunicationProlog(ma_coulPion,80,mon_numjoueur,profondeur,grille,"alphaBeta.pl");
+
 
             while(num_partie <= 2)
             {
@@ -77,87 +136,12 @@ public class Client extends Newton {
                 {
                     /**************  Requete COUP **************/
 
-                    /************ @TODO A récuprer de puis le Moteur IA *************/
 
-                    mon_tcoup = TCoup.POSE; // POSE | DEPL (Réceperation depuis le Moteur IA)
-
-                    TLg ma_ligne = F;
-                    TCol ma_clonne = TROIS;
+                    /************************ Récuperation du Coup depuis IA ************/
 
 
-                    System.out.println("Entrez le Coup qui vous souhaitez jouer\n (1 ==> Poser un Pion) \n  (2 ==> Deplacer un Pion) ");
-                    Scanner sc1 = new Scanner(System.in);
-                    Scanner sc2 = new Scanner(System.in);
-                    Scanner sc3 = new Scanner(System.in);
-                    coup = sc1.nextInt();
-                    
-                    if(coup==1)
-                    { // Poser un Pion
-                        System.out.println("Entrez la Colonne ou Poser le Pion (1,2,3,4,5) ");
-                        colonne = sc2.nextInt();
 
-                        System.out.println("Entrez la Ligne ou Pose le Pion (A,B,C,D,E,F) ");
-                        ligne = sc3.nextLine();
-                    }
-                    else
-                    { //Deplacer un Pion
-                        System.out.println("Entrez la Colonne du Pion a déplacer (1,2,3,4,5) ");
-                        colonne = sc2.nextInt();
-
-                        System.out.println("Entrez la Ligne ou déplacer le Pion (A,B,C,D,E,F)");
-                        ligne = sc3.nextLine();
-                    }
-
-                    switch (ligne.toUpperCase())
-                    {
-                        case "A":
-                            ma_ligne = A;
-                            break;
-                        case "B":
-                            ma_ligne = B;
-                            break;
-                        case "C":
-                            ma_ligne = C;
-                            break;
-                        case "D":
-                            ma_ligne = D;
-                            break;
-                        case "E":
-                            ma_ligne = E;
-                            break;
-                        case "F":
-                            ma_ligne = F;
-                            break;
-                        case "G":
-                            ma_ligne = F;
-                            break;
-                        case "H":
-                            ma_ligne = F;
-                            break;
-                        default:
-                            System.out.println("Numero de Ligne invalide");
-                    }
-                    switch (colonne)
-                    {
-                        case 1 :
-                            ma_clonne = UN;
-                            break;
-                        case 2 :
-                            ma_clonne = DEUX;
-                            break;
-                        case 3 :
-                            ma_clonne = TROIS;
-                            break;
-                        case 4 :
-                            ma_clonne = QUATRE;
-                            break;
-                        case 5 :
-                            ma_clonne = CINQ;
-                            break;
-                        default:
-                            System.out.println("Numero de Colonne invalide");
-                    }
-
+                    Term mc = comm.getMeilleurCoup();
 
 
                     /******************************************************************/
@@ -167,18 +151,21 @@ public class Client extends Newton {
                     TCoupReq ma_tCoupReq ;
 
                     TIdReq ma_requete_coup = COUP;
-                    TPropCoup ma_tPropCoup_client = CONT; // A modifier  on le récuper depuis le Moteur IA
+                    TPropCoup ma_tPropCoup_client = comm.getpropCoup();
+                    mon_tcoup = comm.getTypeDeplacement();
 
                     if(mon_tcoup == TCoup.POSE)
                     {
-                        TCase tCase = new TCase(ma_ligne, ma_clonne);
+                        TCase tCase = comm.getCoup();
                         tPosPion = new TPosPion(ma_coulPion, tCase);
                         tDeplPion = new TDeplPion();
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
                     }
                     else
                     {
-                        tDeplPion = new TDeplPion(ma_coulPion, ma_clonne, ma_ligne);
+                        TLg tligne = comm.getLigne();
+                        TCol tcolonne = comm.getCol();
+                        tDeplPion = new TDeplPion(ma_coulPion, tcolonne, tligne);
                         tPosPion = new TPosPion();
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
                     }
@@ -281,7 +268,9 @@ public class Client extends Newton {
                                         adv_colonne = adv_tDeplPion.getColPion();
                                     }
 
-                                    //@TODO Mise a jour de la grille dans le moteur IA
+                                    /************** Update Grille apès Coup Adv ***********/
+                                    comm.coupAdversaire(adv_tcoup,adv_colonne,adv_ligne,adv_coulPion);
+                                    /*********************************************************/
 
 
                                 }

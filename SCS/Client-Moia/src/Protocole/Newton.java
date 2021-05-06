@@ -13,37 +13,38 @@ public abstract class Newton {
     public static final int T_NOM = 30;
 
     /* Identificateurs des requetes */
-    public enum TIdReq { PARTIE, COUP }
+    //public enum TIdReq { PARTIE, COUP }
 
     /* Types d'erreur */
-    public enum TCodeRep { ERR_OK,      /* Validation de la requete */
-            ERR_PARTIE,  /* Erreur sur la demande de partie */
-            ERR_COUP,    /* Erreur sur le coup joue */
-            ERR_TYP      /* Erreur sur le type de requete */
-    }
+    //public enum TCodeRep { ERR_OK,      /* Validation de la requete */
+    //        ERR_PARTIE,  /* Erreur sur la demande de partie */
+    //        ERR_COUP,    /* Erreur sur le coup joue */
+    //        ERR_TYP      /* Erreur sur le type de requete */
+    //}
 
     /*
      * Structures demande de partie
      */
-    public enum TCoul{ BLEU, ROUGE }
+    //public enum TCoul{ BLEU, ROUGE }
 
 
     /*
      * Definition d'une position de case
      */
-    public enum TLg { A, B, C, D, E, F, G, H }
-    public enum TCol { UN, DEUX, TROIS, QUATRE, CINQ }
+    //public enum TLg { A, B, C, D, E, F, G, H }
+    //public enum TCol { UN, DEUX, TROIS, QUATRE, CINQ }
 
     /* Coups possibles */
-    public enum TCoup { POSE, DEPL }
+    //public enum TCoup { POSE, DEPL }
 
     /* Propriete des coups */
-    public enum TPropCoup { CONT, GAGNE, NUL, PERDU }
+    //public enum TPropCoup { CONT, GAGNE, NUL, PERDU }
 
     /* Validite du coup */
     public enum TValCoup{ VALID, TIMEOUT, TRICHE }
 
 /********************************* Fonction For Send And Recive *///////////////////////////////
+
     public float reciveFloat(InputStream inputStream) throws IOException{
         byte[] bytes = new byte[4];
         inputStream.read(bytes);
@@ -144,10 +145,5 @@ public abstract class Newton {
     }
 
     public abstract void getFromBuffer(ByteBuffer buffer) throws IOException;
-
-
-
-
-
 
 }
