@@ -4,7 +4,7 @@
 :- use_module(library(lists)).
 :- set_prolog_flag(toplevel_print_options,[max_depth(0)]).
 :- use_module(library(random)).
-:- ['./Board_Game.pl'].
+:- include('Board_Game.pl').
 
 
 %% getLigneElementsD(1,3,8,[[[1,8],b],[[2,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],E).

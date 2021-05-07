@@ -561,18 +561,18 @@ public class Client extends Newton {
     }
 
     @Override
-    public void send(OutputStream os) throws IOException {
+    public void send(OutputStream os) {
 
     }
 
 
     @Override
-    public void recive(InputStream is) throws IOException {
+    public void recive(InputStream is)  {
 
     }
 
     @Override
-    public void getFromBuffer(ByteBuffer buffer) throws IOException {
+    public void getFromBuffer(ByteBuffer buffer)  {
 
     }
 }
