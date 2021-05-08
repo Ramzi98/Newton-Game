@@ -1,8 +1,10 @@
+import java.io.File;
 import Protocole.TCol;
 import Protocole.TCoul;
 import Protocole.TCoup;
 import Protocole.TLg;
 import org.jpl7.*;
+
 
 import java.util.Map;
 
@@ -179,7 +181,7 @@ public class Grille {
             }
         }
 
-        String file = ClassLoader.getSystemResource("alphaBeta.pl").getPath();
+        String file = ClassLoader.getSystemResource("Prolog"+ File.separator+"alphaBeta.pl").getPath();
 
         Query q = new Query("consult('"+file+"')");
         q.hasSolution();

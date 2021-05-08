@@ -1,5 +1,6 @@
 import Protocole.*;
 
+import java.io.File;
 import java.lang.Integer;
 import java.net.* ;
 import java.io.* ;
@@ -26,7 +27,7 @@ public class Client extends Newton {
     public static void main(String [] args) {
 
         //Récuperation de localisation du fichier alphaBeata.pl
-        String fileIA = ClassLoader.getSystemResource("alphaBeta.pl").getPath();
+        String fileIA = ClassLoader.getSystemResource("Prolog"+File.separator+"alphaBeta.pl").getPath();
 
 
         /*****  Récuperation de host Port nom_joueur depuis la ligne de commande   ************/
@@ -52,7 +53,7 @@ public class Client extends Newton {
         int mes_parties_gagnees = 0;
         int adv_parties_gagnees = 0;
         boolean new_partie = false;
-        int profondeur = 5;
+        int profondeur = 4;
         int colonne;
         String ligne;
         int coup;
@@ -110,15 +111,13 @@ public class Client extends Newton {
             /*** Création d'une nouvelle communication avec le prolog en utilise la bibliothèque JPL *****/
             CommunicationProlog comm = new CommunicationProlog(ma_coulPion,80,mon_numjoueur,profondeur,grille,fileIA);
 
-            System.out.println("La grille Initiale "+grille.getGrilleTotale());
-
 
 
             /********* une boucle while afin de joueur plusieurs coups et lorsque en termine la deuxième partie on sort ***********/
             while(num_partie <= 2)
             {
                 //os.flush();
-                System.out.println("Partie N :"+num_partie);
+                System.out.println("Partie N : "+num_partie);
 
 
                 if(ma_coulPion == TCoul.BLEU && num_partie == 1 || ma_coulPion == TCoul.ROUGE && num_partie == 2)
@@ -141,8 +140,6 @@ public class Client extends Newton {
 
 
                     /******************************************************************/
-
-                    System.out.println("La grille après jouer mon coup "+grille.getGrilleTotale());
 
                     TPosPion tPosPion;
                     TDeplPion tDeplPion;
@@ -169,7 +166,6 @@ public class Client extends Newton {
                         /**** Initialisation de la classe TCoupReq avec les valeurs déjà initialiser et le num partie ****/
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
 
-                        System.out.println("Coup a jouer : \nType de deplacement :"+mon_tcoup+"\nLigne : "+tCase.getL()+"\nColonne : "+tCase.getC()+"\nType de coup :"+ma_tPropCoup_client);
 
                     }
                     else
@@ -185,7 +181,6 @@ public class Client extends Newton {
                         /**** Initialisation de la classe TCoupReq avec les valeurs déjà initialiser et le num partie ****/
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
 
-                        System.out.println("Coup a jouer : \nType de deplacement :"+mon_tcoup+"\nLigne : "+tligne+"\nColonne : "+tcolonne+"\nType de coup :"+ma_tPropCoup_client);
                     }
 
                     /**** Envoi de la requete dans le outputStram ****/
@@ -338,7 +333,6 @@ public class Client extends Newton {
                                     comm.coupAdversaire(adv_tcoup,adv_colonne,adv_ligne,adv_coulPion);
                                     /*********************************************************/
 
-                                    System.out.println("La grille après le coup de l'adversaire "+grille.getGrilleTotale());
 
 
                                 }
@@ -475,7 +469,6 @@ public class Client extends Newton {
                         comm.coupAdversaire(adv_tcoup,adv_colonne,adv_ligne,adv_coulPion);
                         /*********************************************************/
 
-                        System.out.println("La grille après le coup de l'adversaire "+grille.getGrilleTotale());
 
 
 
@@ -501,7 +494,6 @@ public class Client extends Newton {
 
                     /******************************************************************/
 
-                    System.out.println("La grille après jouer mon coup "+grille.getGrilleTotale());
 
 
                     TPosPion tPosPion;
@@ -529,7 +521,6 @@ public class Client extends Newton {
                         /**** Initialisation de la classe TCoupReq avec les valeurs déjà initialiser et le num partie ****/
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
 
-                        System.out.println("Coup a jouer : \nType de deplacement :"+mon_tcoup+"\nLigne : "+tCase.getL()+"\nColonne : "+tCase.getC()+"\nType de coup :"+ma_tPropCoup_client);
 
                     }
                     else
@@ -544,7 +535,6 @@ public class Client extends Newton {
                         tPosPion = new TPosPion();
                         /**** Initialisation de la classe TCoupReq avec les valeurs déjà initialiser et le num partie ****/
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
-                        System.out.println("Coup a jouer : \nType de deplacement :"+mon_tcoup+"\nLigne : "+tligne+"\nColonne : "+tcolonne+"\nType de coup :"+ma_tPropCoup_client);
 
                     }
 

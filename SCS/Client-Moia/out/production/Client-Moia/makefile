@@ -10,7 +10,7 @@ CLASSPATH = jpl.jar
 CLASSES = Client.java CommunicationProlog.java Grille.java Protocole/Newton.java Protocole/TCase.java Protocole/TCodeRep.java Protocole/TCol.java Protocole/TCoul.java Protocole/TCoup.java Protocole/TcoupRep.java Protocole/TCoupReq.java Protocole/TDeplPion.java Protocole/TIdReq.java Protocole/TLg.java Protocole/TPartieRep.java Protocole/TPartieReq.java Protocole/TPosPion.java Protocole/TPropCoup.java Protocole/TValCoup.java
 
 run: Client.class
-	java -cp $(CLASSPATH): Client 127.0.0.1 2000 $(NAME)
+	java -cp $(CLASSPATH): Client $(ADRESSE) $(PORT) $(NAME) 
 
 	make clean
 
