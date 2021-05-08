@@ -8,7 +8,7 @@
  *  resume : entete pour la validation des coups
  *
  *  date :      09 / 02 / 21
- *  modifie : 
+ *  modifie :   12 / 04 / 21
  ***********************************************************
  */
 
@@ -25,7 +25,7 @@
 */
 bool validationCoup(int joueur, TCoupReq coup, TPropCoup *propCoup);
 
-/* Initialiser une partie : au cas d'une fin de partie (gagnee, perdue ou ex aequo), informer du demarrage d'une nouvelle partie */
+/* Initialiser une partie : informer du demarrage d'une nouvelle partie avant son debut */
 void initialiserPartie();
 
 #endif
