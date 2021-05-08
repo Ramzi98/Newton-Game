@@ -1,33 +1,40 @@
 :-use_module(library(lists)).
 :-set_prolog_flag(answer_write_options,[max_depth(0)]).
 
-%:-initialGrid/1
-%Définit la grille initiale
+%:-grilleinitiale/1
+%Définit la grille/plateau initiale qui englobe les deux joueurs
 grilleinitiale(G):-
 	grilleinitiale(1,P1G),
 	grilleinitiale(2,P2G),
 	G = [P1G,P2G].
 
-%:-gridCase/1
-%Renvoie une case de la grille
+%:-casegrille/1
+%Renvoie une case de la grille 
 casegrille([A,B]):-
 	member(A,[1,2,3,4,5]),
 	member(B,[1,2,3,4,5,6,7,8]).
 
+%:-joueurCouleur/2
+%Renvoie la couleur du joueur en fonction de son nombre
 joueurCouleur(1,b).
 joueurCouleur(2,r).
 
+%:-couleurOppose/2
+%Renvoie la couleur de l'adversaire en fonction de la couleur du joueur
 couleurOppose(r,b).
 couleurOppose(b,r).
 
+%:-nombrePionGrille/2
+%nombre des pions dans une grille 
 nombrePionGrille(G,N):-length(G,N).
+%:-nombrePionPoche/2
+%nombre des pions dans la poche d'un joueur
 nombrePionPoche(G,N):- length(G,N1), N is 20 - N1.
 
-%:-initialGrid/2
-%Définit la grille initiale pour le joueur donné.
-%initialGrid(J,G) : 
-				%J = Id joueur
-				%G = Grille initiale pour ce joueur
+%:-grilleinitiale/2
+%Définit la grille initiale pour un joueur donné.
+%La grille d'un joueur contient les cases ou il a des pions
+%un pion est representé par [[Collone,Ligne],Couleur].
 grilleinitiale(1,PG):-
 	PG = [
         [[1,8],b],[[3,8],b],[[5,8],b],
@@ -40,6 +47,8 @@ grilleinitiale(2,PG):-
         [[1,7],r],[[3,7],r],[[5,7],r]
 	].
 
+%:-anterieurRempli/2
+%Donne si la case au dessous d'une case données n'est pas vide dans une grille.
 anterieurRempli(G,Case):-
 	G = [G1,_],
 	Case = [A,B],
@@ -55,24 +64,32 @@ anterieurRempli(G,Case):-
 	member([[A,N],_],G2),
 	!.
 
+%:-caseVide/2
+%Verifie si une case donnée est vide dans une grille.
 caseVide(Case,G):-
 	G = [G1,G2],
 	\+ member(Case,G1),
 	\+ member(Case,G2).
 
+
+%:-caseCorrecte/2
+%Verifie si une case donnée est correcte dans une grille (vide et avec un  pion en dessous) .
 caseCorrecte(G,D):-
 	casegrille(D),
 	caseVide([D,_],G),
 	anterieurRempli(G,D),
 	!.
 
+%:-deplacable/2
+%Verifie si un pion dans la grille peut etre bougé .
 deplacable(Case,G):-
 	Case = [[A,B],_],
 	B = 8,
 	caseVide([[A,1],_],G).
 	
 
-
+%:-getCaseLigneH/2
+% Verifié si un pion est dans la ligne H .
 getCaseLigneH(PGrille,Case) :-
 	PGrille = [[_,Couleur]|_],
 	Case = [[1, 8],Couleur],
@@ -100,7 +117,7 @@ getCaseLigneH(PGrille,Case) :-
 
 
 
-%%%%%%%%%%%%%%%%% moveDown pour deplacer toutes les pions dune colonne vers le bas %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% moveDown/3 applique l'effet de gravité, deplacer tout les pions vers les lignes en dessous %%%%%%%%%%%%%%%%%%%%%%
 moveDown(_,[],[]).
 
 moveDown(Colonne, Grille, NvGrille) :-
@@ -119,7 +136,7 @@ moveDown(Colonne,Grille, NvGrille) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%% retirerCase pour Retirer une Case Case qui appartient a une Grille Grille %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% retirerCase/3 pour retirer un pion d'Case qui appartient a une Grille et genere la nouvelle grille %%%%%%%%%%%%%%%%
 
 retirerCase(_, [], []):-!.
 
@@ -138,7 +155,7 @@ retirerCase(Case , [X|Reste], NvGrille) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%% nextLigneVide predicat pour trouver la prochaine Ligne vide d'une Colonne
+%%%%%%%%%%%%%%%%% nextLigneVide/3 predicat pour trouver la prochaine Ligne vide d'une colonne d'une case
 			%%%%% Colonne N° de colonne Min la valeur minimale des ligne %%%%%%%%%%%
 
 
@@ -159,8 +176,7 @@ nextLigneVide(Case, Grille, NvCase) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%% movepiece pour deplacer Un pion d'une case Case
-				%% Vers un Case NVcase %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% movepiece/6 pour deplacer Un pion d'une case vers une autre case quelquonque %%%%%%%%%%%%%%%%%%%%%%
 
 movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 	Grille = [G1, G2],
@@ -189,6 +205,9 @@ movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 	moveDown(A, [NvCase|NVG2], NVG4),
 	NvGrille = [NVG3,NVG4].
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%% deplacement/3 effectuer un deplacement d'un pion existant sur la grille vers une autre case %%%%%%%%%%%%%%%%%%%%%%
 
 %deplacement([[[[1,8],b],[[3,8],b],[[1,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NvGrille).
 %Deplacement depuis la ligne H
@@ -211,11 +230,12 @@ deplacement(Grille, Player, NVGrille) :-
 	deplacable(Case, Grille), % a enlever proablement 
 	movepiece(Case, _NvCase,Player ,Couleur,Grille , NVGrille).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%% allCase([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],r,1,Case).
 
 
-%%%%%%%%%%%%%%%%% allCase Récupère  les cases vides pour toutes les Colonne %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% allCase/3 Récupère  les cases vides pour toutes les Colonne %%%%%%%%%%%%%%%%%%%%%%
 
 allCase(PGrille, Couleur, Case) :-
 	getCasePossible(PGrille, Couleur, 1, 6, Case).
@@ -232,12 +252,13 @@ allCase(PGrille, Couleur, Case) :-
 allCase(PGrille, Couleur, Case) :-
 	getCasePossible(PGrille, Couleur, 5, 6, Case).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%% getCasePossible Récupère la premier Case vide (de bas en haut) Dans une colonne fournie
-		%%%%%%%%	Grille : la grile de jeux actuelle %%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% getCasePossible/5 Récupère la premiere Case vide (de bas en haut) pour une colonne fournie
+		%%%%%%%%	Grille : la grille actuelle %%%%%%%%%%%%%%%%%%%%%%
 		%%%%%%%%	Couleur : la couleur du joueur qui va jouer le coup %%%%%%%%%%%%%%%%%%%%%%
 		%%%%%%%%	Colonne : la colonne fournie Pour trouver une case vide %%%%%%%%%%%%%%%%%%%%%%
-		%%%%%%%%	Ligne : la Ligne fournie Pour V"rifier si la case [Ligne, Colonne] est vide sinon Ligne = Ligne -1 %%%%%%%%%%%%%%%%%%%%%%
+		%%%%%%%%	Ligne : la Ligne fournie Pour Verifier si la case [Ligne, Colonne] est vide sinon on remonte dans la ligne %%%%%%%%%%%%%%%%%%%%%%
 		%%%%%%%%	Case : la premier case vide (de bas en haut) %%%%%%%%%%%%%%%%%%%%%%
 
 getCasePossible(_, _, 0, _) :-
@@ -255,7 +276,8 @@ getCasePossible(Grille, Couleur, Colonne, Ligne, Case) :-
 	Ligne >= 1,
 	N is Ligne - 1,
 	getCasePossible(Grille, Couleur, Colonne, N, Case).
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% addCaseGrille/4 Ajouter un pion sur une grille d'un joueur en fonction de sa couleur
 	
 addCaseGrille(Grille, Couleur, Case, NVGrille) :-
 	Grille = [G1,G2],
@@ -272,8 +294,9 @@ addCaseGrille(Grille, Couleur, Case, NVGrille) :-
 %% deplacementPoche([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NVGrille).
 %% deplacementPoche([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[1,6],b],[[1,5],b],[[1,4],b],[[1,3],b],[[1,2],b],[[1,1],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NVGrille).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% deplacementPoche/3 Effectuer un deplacement de poche et generer la nouvelle grille en fonction d'un joueur 
 
-%Deplacement depuis la Poche
 deplacementPoche(Grille, Player, NVGrille) :-
 	joueurCouleur(Player, Couleur),
 	Player = 1,
@@ -283,7 +306,7 @@ deplacementPoche(Grille, Player, NVGrille) :-
 	allCase(Grille, Couleur, Case),
 	addCaseGrille(Grille, Couleur, Case, NVGrille).
 	
-%Deplacement depuis la Poche
+
 deplacementPoche(Grille, Player, NVGrille) :-
 	joueurCouleur(Player, Couleur),
 	Player = 2,
@@ -297,10 +320,9 @@ deplacementPoche(Grille, Player, NVGrille) :-
 	%%%% contrainteVerticale([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]],[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]]).
 	%%%% etatGagnant([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],Player).
 
-%% contrainteVerticale(Grille,GrilleInit)
-	%%% Grille : Grille courante pendant le parcour  
-	%%% GrilleInit : la grille au debut de parcour avec toutes les elements  
-
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% deplacementN/4 Effectuer un deplacement de pion ou de poche pour un joueur
 
 deplacementN(Grille, Player, NVGrille, TypeDeplacement):-
 	deplacement(Grille, Player, NVGrille),
@@ -311,16 +333,16 @@ deplacementN(Grille, Player, NVGrille, TypeDeplacement):-
 	TypeDeplacement = p.
 
 
-%insereC(Grille,Player,NvGrille):-
 
-
+%% contrainteVerticale/2 : Vérification de la contrainte d'arret verticale (5 pions successifs).
+	%%% Grille : Grille courante pendant le parcour  
+	%%% GrilleInit : la grille au debut de parcour avec toutes les element
 contrainteVerticale([],_) :- 
 	fail,
 	!.
 
 contrainteVerticale(G,G1):-
-	%% nombrePionGrille(G,N), %% Pour optimiser
-	%% N >=5, %% Pour optimiser
+	
 	G = [[[A,B],_]|_],
 	B = 5,
 	member([[A,4],Couleur],G1),
@@ -330,8 +352,7 @@ contrainteVerticale(G,G1):-
 	!.
 
 contrainteVerticale(G,G1):-
-	%% nombrePionGrille(G,N), %% Pour optimiser
-	%% N >=5, %% Pour optimiser
+	
 	G = [[[A,B],Couleur]|_],
 	B = 6,
 	member([[A,5],Couleur],G1),
@@ -345,7 +366,7 @@ contrainteVerticale(G,G1):-
 	contrainteVerticale(Reste,G1).
 
 
-%% contrainteHorizontale(Grille,GrilleInit)
+%% contrainteHorizontale/2 : Vérification de la contrainte d'arret horizontale (5 pions successifs).
 	%%% Grille : Grille courante pendant le parcour  
 	%%% GrilleInit : la grille au debut de parcour avec toutes les elements  
 
@@ -354,8 +375,7 @@ contrainteHorizontale([],_) :-
 	!.
 
 contrainteHorizontale(G,G1):-
-	%% nombrePionGrille(G,N), %% Pour optimiser
-	%% N >=5, %% Pour optimiser
+	
 	G = [[[A,B],_]|_],
 	B >= 1,
 	B =< 6,
@@ -372,7 +392,7 @@ contrainteHorizontale(G,G1):-
 
 
 
-%% contrainteDiagonale(Grille,GrilleInit)
+%% contrainteDiagonale/2 : Vérification de la contrainte d'arret diagonale (5 pions successifs).
 	%%% Grille : Grille courante pendant le parcour  
 	%%% GrilleInit : la grille au debut de parcour avec toutes les elements  
 
@@ -381,8 +401,7 @@ contrainteDiagonale([],_) :-
 	!.
 
 contrainteDiagonale(G,G1):-
-	%% nombrePionGrille(G,N), %% Pour optimiser
-	%% N >=5, %% Pour optimiser
+	
 	G = [[[A,B],_]|_],
 	B = 6,
 	A = 1,
@@ -393,8 +412,7 @@ contrainteDiagonale(G,G1):-
 	!.
 
 contrainteDiagonale(G,G1):-
-	%% nombrePionGrille(G,N), %% Pour optimiser
-	%% N >=5, %% Pour optimiser
+	
 	G = [[[A,B],_]|_],
 	B = 5,
 	A = 1,
@@ -405,8 +423,7 @@ contrainteDiagonale(G,G1):-
 	!.
 
 contrainteDiagonale(G,G1):-
-	%% nombrePionGrille(G,N), %% Pour optimiser
-	%% N >=5, %% Pour optimiser
+	
 	G = [[[A,B],_]|_],
 	B = 6,
 	A = 5,
@@ -417,8 +434,7 @@ contrainteDiagonale(G,G1):-
 	!.
 
 contrainteDiagonale(G,G1):-
-	%% nombrePionGrille(G,N), %% Pour optimiser
-	%% N >=5, %% Pour optimiser
+
 	G = [[[A,B],_]|_],
 	B = 5,
 	A = 5,
@@ -443,7 +459,7 @@ contrainte(G,G1):-
 	contrainteDiagonale(G,G1),
 	!.
 
-%%%% etatGagnant(Grille,Player) : Grille (la grille principale Grille = [G1,G2] )
+%%%% etatGagnant/2 : verification de les contraintes pour un joueur dans une grille
 	%%%%%%%%% Player : numero de joueur gagnant 
 	%%%%%%%%% return false si pas de gagnant 
 
@@ -461,40 +477,3 @@ etatGagnant(Grille,Player):-
 	Player is 2,
 	!.
 
-
-%%% updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 1, r, p, NVG).
-% updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 4, b, p, NVG).
-
-%%%%%%%%%%%%%% Pose %%%%%%%%%%%%%%%%%%%
-updateGrille(Grille ,Ligne, Colonne, Couleur ,TypeCoup , NVGrille) :-
-	Grille = [G1,G2],
-	Coup = [[Colonne, Ligne], Couleur],
-	TypeCoup = p,
-	G1 = [[_,Couleur]|_],
-	NVG1 = [Coup|G1],
-	NVGrille = [NVG1,G2],
-	!.
-
-updateGrille(Grille ,Ligne, Colonne, Couleur ,TypeCoup , NVGrille) :-
-	Grille = [G1,G2],
-	Coup = [[Colonne, Ligne], Couleur],
-	TypeCoup = p,
-	G2 = [[_,Couleur]|_],
-	NVG2 = [Coup|G2],
-	NVGrille = [G1,NVG2],
-	!.
-
-%%%%%%%%%%%%%% Deplacement %%%%%%%%%%%%%%%%%%%
-updateGrille(Grille ,_NvLigne, Colonne, Couleur ,TypeCoup , NVGrille) :-
-	Couleur = b,
-	TypeCoup = d,
-	Case = [[Colonne, 8], Couleur],
-	movepiece(Case, _, 1,Couleur, Grille, NVGrille),
-	!.
-
-updateGrille(Grille ,_NvLigne, Colonne, Couleur ,TypeCoup , NVGrille) :-
-	Couleur = r,
-	TypeCoup = d,
-	Case = [[Colonne, 8], Couleur],
-	movepiece(Case, _, 2,Couleur, Grille, NVGrille),
-	!.
