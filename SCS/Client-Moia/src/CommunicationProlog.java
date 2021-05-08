@@ -19,6 +19,7 @@ public class CommunicationProlog {
     private TIdReq idrequest;
     private int profendeur;
     private String emplacementIA;
+    private int nombre_pion_poche;
     Term meilleurCoup;
 
     public CommunicationProlog(TCoul macouleur, int nbToursMax, int mon_numjoueur, int profendeur, Grille grille, String emplacementIA)
@@ -28,6 +29,7 @@ public class CommunicationProlog {
         this.mon_numjoueur = mon_numjoueur;
         this.profendeur = profendeur;
         this.emplacementIA = emplacementIA;
+        this.nombre_pion_poche=15;
 
 
         if(macouleur == TCoul.BLEU)
@@ -349,6 +351,7 @@ public class CommunicationProlog {
         switch (Typedepl.toString())
         {
             case "p" -> {
+                nombre_pion_poche --;
                 tCoup = POSE;
                 break;
             }
