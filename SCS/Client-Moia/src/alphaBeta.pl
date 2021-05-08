@@ -4,7 +4,8 @@
 :- use_module(library(lists)).
 :- set_prolog_flag(toplevel_print_options,[max_depth(0)]).
 :- use_module(library(random)).
-:- include('Board_Game.pl').
+
+:- ['./Board_Game.pl'].
 
 
 %% getLigneElementsD(1,3,8,[[[1,8],b],[[2,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],E).
@@ -306,14 +307,14 @@ minEvalPlateaux([[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille], Player, Tour, 
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         max_member(Alpha2, [Alpha,Eval]),
-        minEvalPlateaux(LGrille,Player, Tour, TourMax, 0, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille],Eval]|Acc], CoupsEvalues),
+        minEvalPlateaux(LGrille,Player, Tour, TourMax, 0, ProfParcourue, Alpha2, Beta, [[[Grille,Coup,TypeCoup,TypeDeplacement],Eval]|Acc], CoupsEvalues),
         !.
 
 minEvalPlateaux([[Grille,Coup,g,TypeDeplacement]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         max_member(Alpha2, [Alpha,Eval]),
-        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,g,TypeDeplacement]|LGrille],Eval]|Acc], CoupsEvalues),
+        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[Grille,Coup,g,TypeDeplacement],Eval]|Acc], CoupsEvalues),
         !.
 
 
@@ -321,7 +322,7 @@ minEvalPlateaux([[Grille,Coup,p,TypeDeplacement]|LGrille], Player, Tour, TourMax
         Grille = [G1,G2],
         evalue(G1, G2, ProfParcourue, Eval),
         max_member(Alpha2, [Alpha,Eval]),
-        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[[Grille,Coup,p,TypeDeplacement]|LGrille],Eval]|Acc], CoupsEvalues),
+        minEvalPlateaux(LGrille, Player, Tour, TourMax, Prof, ProfParcourue, Alpha2, Beta, [[[Grille,Coup,p,TypeDeplacement],Eval]|Acc], CoupsEvalues),
         !.
 
 minEvalPlateaux([[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille], Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta, Acc, CoupsEvalues) :-

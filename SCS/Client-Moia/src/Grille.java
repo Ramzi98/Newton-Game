@@ -2,8 +2,7 @@ import Protocole.TCol;
 import Protocole.TCoul;
 import Protocole.TCoup;
 import Protocole.TLg;
-import org.jpl7.Query;
-import org.jpl7.Term;
+import org.jpl7.*;
 
 import java.util.Map;
 
@@ -15,27 +14,24 @@ public class Grille {
 
 
 
+    /*** Constructeur de la classe Grille pour récuperer la grille initilae depuis le prolog ****/
     public Grille(int num_joueur, String emplacementIA)
     {
         this.num_joueur= num_joueur;
 
-        //Query q = new Query("consult('\\Prolog\\alphaBeta.pl')");
         Query q = new Query("consult('"+emplacementIA+"')");
         q.hasSolution();
 
+        /*** Récuperation de la grille avec la requete grilleinitiale(G) ****/
         q = new Query("grilleinitiale(G)");
         Map<String, Term> grille_totale = q.oneSolution();
         q = new Query("grilleinitiale(1, G)");
         Map<String, Term> grille_joueur1 = q.oneSolution();
-        q = new Query("grilleinitiale(1, G)");
+        q = new Query("grilleinitiale(2, G)");
         Map<String, Term> grille_joueur2 = q.oneSolution();
 
-        System.out.println(grille_totale.get("G"));
 
-        System.out.println(grille_joueur1.get("G"));
-
-        System.out.println(grille_joueur2.get("G"));
-
+        /*** Affectation des sous grille pour chaque Joueur ****/
         if(num_joueur == 1)
         {
             magrille = grille_joueur1.get("G");
@@ -76,6 +72,7 @@ public class Grille {
         this.grilleTotale = grilleTotale;
     }
 
+    /***** Une methode pour faire mise a jour de la grille après chaque coup d'advarsaire jouer *****/
     public void miseAjourGrille(TCoup tcoup, TCol tCol, TLg tLg, TCoul tcouleur)
     {
         int col ;
@@ -182,16 +179,17 @@ public class Grille {
             }
         }
 
+        String file = ClassLoader.getSystemResource("alphaBeta.pl").getPath();
 
-        Query q = new Query("consult('alphaBeta.pl')");
+        Query q = new Query("consult('"+file+"')");
         q.hasSolution();
 
+        /**** Récuperation de la noucelle grille depuis Prolog ***********/
         q = new Query("updateGrille("+grilleTotale+","+ligne+","+col+","+couleur+","+typecoup+", NVGrille)");
         Map<String, Term> nouvellegrille = q.oneSolution();
 
         grilleTotale = nouvellegrille.get("NVGrille");
 
-        //System.out.println(grilleTotale);
 
 
 

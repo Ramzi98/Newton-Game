@@ -1,6 +1,5 @@
 import Protocole.*;
-import org.jpl7.Query;
-import org.jpl7.Term;
+import org.jpl7.*;
 
 import java.util.Map;
 
@@ -22,8 +21,11 @@ public class CommunicationProlog {
     private int nombre_pion_poche;
     Term meilleurCoup;
 
+    /*** Constructeur de la classe Grille pour définir les valeurs de la couleur le nombre de tour actuelle
+     * le nombre de tours maxi la profendeur la grile et lemlacement de fichier ****/
     public CommunicationProlog(TCoul macouleur, int nbToursMax, int mon_numjoueur, int profendeur, Grille grille, String emplacementIA)
     {
+
         this.grille = grille;
         this.macouleur = macouleur;
         this.mon_numjoueur = mon_numjoueur;
@@ -32,6 +34,7 @@ public class CommunicationProlog {
         this.nombre_pion_poche=15;
 
 
+        /***** Affectation de la couleur de l'advarsaire **************/
         if(macouleur == TCoul.BLEU)
         {
             advcouleur = ROUGE;
@@ -71,6 +74,7 @@ public class CommunicationProlog {
         this.profendeur = profendeur;
     }
 
+    /*** Methode pour faire la mise a jour de la grille après que l' adversaire joue un coup ********/
     public void coupAdversaire(TCoup tcoup, TCol tCol, TLg tLg, TCoul tcouleur)
     {
         grille.miseAjourGrille(tcoup,tCol,tLg,tcouleur);
@@ -78,27 +82,33 @@ public class CommunicationProlog {
     }
 
 
+    /**** Methode pour précuper le meilleur coup depuis l'IA *********/
     public Term getMeilleurCoup()
     {
+        /*** incrémentation de num tour ***/
+        this.numeroTour++;
+
+        /****** Consultation de fichie de prolog dans le quelle se trouve l'algorithme alphaBeta*******/
         Query q = new Query("consult('"+emplacementIA+"')");
         q.hasSolution();
 
         //alphaBeta(Grille,Player, Tour, TourMax, Prof, MeilleurCoup)
-        System.out.println(grille.getGrilleTotale());
+        /***** Création de la requête qui récupère le coup ******/
         q = new Query("alphaBeta("+grille.getGrilleTotale()+","+mon_numjoueur+","+numeroTour+","+nbToursMax+","+profendeur+", MeilleurCoup)");
         Map<String, Term> coup = q.oneSolution();
 
-        Term meilleurCoup = coup.get("MeilleurCoup");
-        this.meilleurCoup = meilleurCoup;
+        /**** Récuperation de coup ******/
+        this.meilleurCoup = coup.get("MeilleurCoup");
 
-        // Mise a jour grille avec NVG
-        Term NvGrille = meilleurCoup.arg(1);
+        // Mise a jour grille avec la nouvelle Grille
+        Term NvGrille = coup.get("MeilleurCoup").arg(1);
         grille.setGrilleTotale(NvGrille);
 
         return meilleurCoup;
     }
 
-
+    /** Méthode pour récupérer
+     * la case de meilleur coup (donner par l'IA) *******/
     public TCase getCoup()
     {
         TCol tCol;
@@ -180,13 +190,12 @@ public class CommunicationProlog {
             }
         }
         TCase tCase = new TCase(tLg,tCol);
-        System.out.println(tLg);
-        System.out.println(tCol);
-        System.out.println(tCase);
         return tCase;
 
     }
 
+    /** Méthode pour récupérer
+     * la colonne de meilleur coup (donner par l'IA) *******/
     public TCol getCol()
     {
         TCol tCol;
@@ -223,11 +232,12 @@ public class CommunicationProlog {
                 break;
             }
         }
-        System.out.println(tCol);
         return tCol;
 
     }
 
+    /** Méthode pour récupérer
+     * la ligne de meilleur coup (donner par l'IA) *******/
     public TLg getLigne()
     {
         TLg tLg;
@@ -282,6 +292,7 @@ public class CommunicationProlog {
 
     }
 
+    /** Méthode pour récupérer la couleur de meilleur coup (donner par l'IA) *******/
     public TCoul coupCouleur()
     {
         TCoul tCoul;
@@ -304,10 +315,10 @@ public class CommunicationProlog {
                 break;
             }
         }
-        System.out.println(tCoul);
         return tCoul;
     }
 
+    /** Méthode pour récupérer la proprité de meilleur coup (donner par l'IA) *******/
     public TPropCoup getpropCoup()
     {
         TPropCoup tPropCoup;
@@ -338,10 +349,10 @@ public class CommunicationProlog {
             }
 
         }
-        System.out.println(tPropCoup);
         return tPropCoup;
     }
 
+    /** Méthode pour récupérer le type de deplacement de meilleur coup (donner par l'IA) *******/
     public TCoup getTypeDeplacement()
     {
         TCoup tCoup;
@@ -364,13 +375,16 @@ public class CommunicationProlog {
                 break;
             }
         }
-        System.out.println(Typedepl);
 
         return tCoup;
 
     }
 
 
-
+    public void reinitialiserGrille(Grille Grilleinit)
+    {
+        this.grille = Grilleinit;
+        numeroTour = 0;
+    }
 
 }

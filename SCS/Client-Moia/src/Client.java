@@ -24,52 +24,25 @@ import static Protocole.TValCoup.*;
 
 public class Client extends Newton {
     public static void main(String [] args) {
-/*
-        Grille grille = new Grille( 1,"alphaBeta.pl");
-        CommunicationProlog comm = new CommunicationProlog(BLEU,80,1,6,grille,"alphaBeta.pl");
+
+        //Récuperation de localisation du fichier alphaBeata.pl
+        String fileIA = ClassLoader.getSystemResource("alphaBeta.pl").getPath();
 
 
-
-        System.out.println("1"+grille.getGrilleTotale());
-
-        comm.coupAdversaire(POSE,DEUX,F,BLEU);
-        System.out.println("2"+grille.getGrilleTotale());
-
-
-        comm.coupAdversaire(DEPL,QUATRE,H,ROUGE);
-        System.out.println("3"+grille.getGrilleTotale());
-
-        Term meilleurCoup = comm.getMeilleurCoup();
-
-        Term NvGrille = meilleurCoup.arg(1);
-        Term Mcoup = meilleurCoup.arg(2);
-        Term LeCoup = Mcoup.arg(1);
-        Term arg2 = Mcoup.arg(2);
-        Term PropostionCoup = arg2.arg(1);
-        Term Typedepl = arg2.arg(2).arg(1);
-
-
-        System.out.println("4"+meilleurCoup);
-        System.out.println("5"+NvGrille);
-        System.out.println("6"+Mcoup);
-        System.out.println("7"+LeCoup);
-        System.out.println("8"+PropostionCoup);
-        System.out.println("9"+Typedepl);
-
-*/
-
-
-
+        /*****  Récuperation de host Port nom_joueur depuis la ligne de commande   ************/
         if (args.length!=3){
             System.out.println("arguments - host port nom_joueur");
             System.exit(1);
         }
 
-        Socket s ;
-        // References de la socket
         String hote = args[0];
         int port = Integer.parseInt(args[1]);
         String name1 = args[2];
+
+        /***** References de la socket ***********/
+        Socket s ;
+
+        /**** Déclaration des variables *************/
         char[] name_joueur = new char[name1.length()];
         String name_adversaire;
         TCoul ma_coulPion;
@@ -79,15 +52,14 @@ public class Client extends Newton {
         int mes_parties_gagnees = 0;
         int adv_parties_gagnees = 0;
         boolean new_partie = false;
-        int profondeur = 6;
-
-        /******************************/
+        int profondeur = 5;
         int colonne;
         String ligne;
         int coup;
 
         /******************************/
 
+        /**** Transformation de noms vers chaine de caractères *************/
         for (int i = 0; i < name1.length(); i++) {
             name_joueur[i] = name1.charAt(i);
         }
@@ -95,7 +67,7 @@ public class Client extends Newton {
 
 
         try {
-
+            /********** Initialisation de la Socket et Déclaration des Streams ***********/
             s = new Socket (hote, port);
 
             OutputStream os = s.getOutputStream();
@@ -104,17 +76,26 @@ public class Client extends Newton {
 
             /**************  Requete PARTIE **************/
 
+            /************ Initialisation de l'id de larequete avec PARTIE ***********/
             TIdReq requete_partie = PARTIE;
+            /************ Création d'une instance de type Tpartie Requete avec le nom du joueur et id PARTIE ***********/
             TPartieReq tPartieReq = new TPartieReq(requete_partie, name_joueur);
+            /************ Envoi de la requete vers le serveur dans le outputstream ************/
             tPartieReq.send(os);
 
             /********* La réponse PARTIE *******/
+
+            /****** Création d'une instance de classe TpartieRep afin de sauvegarder la réponse ***********/
             TPartieRep tPartieRep = new TPartieRep();
 
+            /****** Attenet d'une réponse de type Tpartie Requete ***********/
             tPartieRep.recive(is);
+            /******* Affectaion du nom de l'advarsaire recu ***********/
             name_adversaire = tPartieRep.getNomAdvers();
+            /******* Affectaion de la couleur des pions de joueur recu ***********/
             ma_coulPion = tPartieRep.getCoulPion();
 
+            /********** Initialiser le numéro du joueur paraport la couleur de ses pions ********/
             if (ma_coulPion == BLEU)
             {
                 mon_numjoueur = 1;
@@ -124,16 +105,30 @@ public class Client extends Newton {
                 mon_numjoueur = 2;
             }
 
-            Grille grille = new Grille( mon_numjoueur,"alphaBeta.pl");
-            CommunicationProlog comm = new CommunicationProlog(ma_coulPion,80,mon_numjoueur,profondeur,grille,"alphaBeta.pl");
+            /*** Création d'une nouvelles grille *****/
+            Grille grille = new Grille( mon_numjoueur,fileIA);
+            /*** Création d'une nouvelle communication avec le prolog en utilise la bibliothèque JPL *****/
+            CommunicationProlog comm = new CommunicationProlog(ma_coulPion,80,mon_numjoueur,profondeur,grille,fileIA);
+
+            System.out.println("La grille Initiale "+grille.getGrilleTotale());
 
 
+
+            /********* une boucle while afin de joueur plusieurs coups et lorsque en termine la deuxième partie on sort ***********/
             while(num_partie <= 2)
             {
-                os.flush();
+                //os.flush();
                 System.out.println("Partie N :"+num_partie);
+
+
                 if(ma_coulPion == TCoul.BLEU && num_partie == 1 || ma_coulPion == TCoul.ROUGE && num_partie == 2)
                 {
+                    /***** Dans le cas où je suis le joueur avec des pions bleus et on est dans la 1er partie
+                     *  ou je suis le joueur avec des pions rouges et partie 2
+                     *  le joueur commence par envoyer son coup puis il attent la validation du serveur et le coup de l'adversaire
+                     */
+
+
                     /**************  Requete COUP **************/
 
 
@@ -141,64 +136,108 @@ public class Client extends Newton {
 
 
 
+                    /**** Récupération du meilleur coup depuis prolog pour jouer avec ****////
                     Term mc = comm.getMeilleurCoup();
 
 
                     /******************************************************************/
 
+                    System.out.println("La grille après jouer mon coup "+grille.getGrilleTotale());
+
                     TPosPion tPosPion;
                     TDeplPion tDeplPion;
                     TCoupReq ma_tCoupReq ;
 
+                    /**** Initialisation de l'id de la requête avec COUP ********/
                     TIdReq ma_requete_coup = COUP;
+
+                    /**** Initialisation de proposition de coup avec la valeur récupérait depuis l'IA ********/
                     TPropCoup ma_tPropCoup_client = comm.getpropCoup();
+                    /**** Initialisation de type de deplacement de coup avec la valeur récupérait depuis l'IA ********/
                     mon_tcoup = comm.getTypeDeplacement();
+
 
                     if(mon_tcoup == TCoup.POSE)
                     {
+                        /**** dans le cas ou le deplacement est un POSE de pion ********/
+                        /**** Récupération de la case du coup a jouer depuis l'IA dans laquelle on pose le pion *******/
                         TCase tCase = comm.getCoup();
+                        /**** initilaisation de la classe TPosPion avec la couleur des pions et la case récupérait depuis l'IA ****/
                         tPosPion = new TPosPion(ma_coulPion, tCase);
+                        /**** initilaisation de la classe TDeplPion avec le vide car on a pas un deplacement ****/
                         tDeplPion = new TDeplPion();
+                        /**** Initialisation de la classe TCoupReq avec les valeurs déjà initialiser et le num partie ****/
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
+
+                        System.out.println("Coup a jouer : \nType de deplacement :"+mon_tcoup+"\nLigne : "+tCase.getL()+"\nColonne : "+tCase.getC()+"\nType de coup :"+ma_tPropCoup_client);
+
                     }
                     else
                     {
+                        /**** dans le cas ou le deplacement est un Deplacement de pion ********/
+                        /**** Récupération de la la ligne et la colonne du coup a jouer depuis l'IA dans laquelle on pose le pion *******/
                         TLg tligne = comm.getLigne();
                         TCol tcolonne = comm.getCol();
+                        /**** initilaisation de la classe TDeplPion avec la couleur des pions et la case récupérait depuis l'IA ****/
                         tDeplPion = new TDeplPion(ma_coulPion, tcolonne, tligne);
+                        /**** initilaisation de la classe TPosPion avec le vide car on a un deplacement ****/
                         tPosPion = new TPosPion();
+                        /**** Initialisation de la classe TCoupReq avec les valeurs déjà initialiser et le num partie ****/
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
+
+                        System.out.println("Coup a jouer : \nType de deplacement :"+mon_tcoup+"\nLigne : "+tligne+"\nColonne : "+tcolonne+"\nType de coup :"+ma_tPropCoup_client);
                     }
 
-
+                    /**** Envoi de la requete dans le outputStram ****/
                     ma_tCoupReq.send(os);
 
                     /******** Réponse COUP ***********/
 
+                    /****** Création d'une instance de classe TcoupRep et l'attent de la reponse de serveur *******/
                     TCoupRep mon_tCoupRep = new TCoupRep();
                     mon_tCoupRep.recive(is);
 
+                    /********** initilaisation des variables avec les valeurs recu ************/
                     TCodeRep mon_tCodeRep = mon_tCoupRep .getErr();
                     TValCoup mon_tValCoup = mon_tCoupRep .getValidCoup();
                     TPropCoup mon_tPropCoup_serveur = mon_tCoupRep.getPropCoup();
 
+
                     if(mon_tPropCoup_serveur == GAGNE )
                     {
+                        /******* Si le serveur nous informe qu'on a gagné *********/
                         mes_parties_gagnees++;
                         affichageresultat(1, num_partie, name1);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     }
                     else if(mon_tPropCoup_serveur == NUL)
                     {
+                        /******* Si le serveur nous informe qu'on a fait un matche null *********/
                         affichageresultat(0, num_partie, name1);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     }
                     else if(mon_tPropCoup_serveur == PERDU)
                     {
+                        /******* Si le serveur nous informe qu'on a perdu le matche *********/
                         affichageresultat(1, num_partie, name_adversaire);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     }
 
@@ -220,6 +259,11 @@ public class Client extends Newton {
                             System.out.println(" Validation de la requete ");
                             if(mon_tValCoup == TValCoup.VALID)
                             {
+                                /*** Dans le cas ou notre coup était valide *******/
+
+                                /********* Attent de la réponse de serveur pour l'adversaire et en met la réponse dans
+                                 * une instance TCouprep puis on affect les valeur recu dans des variables
+                                 */
                                 TCoupRep adv_tCoupRep = new TCoupRep();
                                 adv_tCoupRep.recive(is);
                                 TCodeRep adv_tCodeRep = adv_tCoupRep .getErr();
@@ -228,16 +272,28 @@ public class Client extends Newton {
 
                                 if(adv_tPropCoup_serveur == GAGNE || adv_tPropCoup_serveur == NUL || adv_tPropCoup_serveur == PERDU )
                                 {
+                                    /******* Si le serveur nous informe que  l'adversaire a perdu le matche
+                                     *      ou qu'il a gagné ou il fait un marche NUl *********/
                                     if(adv_tPropCoup_serveur == GAGNE)
                                     {
                                         adv_parties_gagnees++;
                                     }
+
+                                    /*** reinitialiserGrille la grille *****/
+                                    Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                                    comm.reinitialiserGrille(grille2);
+
                                     num_partie++;
                                     continue;
                                 }
 
                                 if(adv_tValCoup == TValCoup.VALID)
                                 {
+                                    /*** Dans le cas ou le coup de l'adversaire était valide *******/
+
+                                    /**** l'attente de la requête de l'adversaire
+                                     * * et on va mettre cette réponse dans une instance de la classe TcoupReq
+                                     * puis on affecte les valeur recu dans des variables ****/
                                     TCoupReq adv_tCoupReq = new TCoupReq();
                                     adv_tCoupReq.recive(is);
                                     TIdReq adv_id_req = adv_tCoupReq.getIdRequest();
@@ -245,7 +301,6 @@ public class Client extends Newton {
                                     TCoup adv_tcoup = adv_tCoupReq.getTypeCoup();
                                     TPosPion adv_tPosPion = adv_tCoupReq.getPosePion();
                                     TDeplPion adv_tDeplPion = adv_tCoupReq.getDeplPion();
-                                    //Param adv_param = adv_tCoupReq.getParam();
                                     TPropCoup adv_tPropCoup_client = adv_tCoupReq.getPropCoup();
 
                                     TCoul adv_coulPion;
@@ -254,8 +309,13 @@ public class Client extends Newton {
 
                                     if(adv_tcoup == TCoup.POSE)
                                     {
+                                        /**** dans le cas ou l'adversaire a fait un coup de type POSE ********/
 
+                                        /**** Récupération de la couleur des pions de joueur *******/
                                         adv_coulPion = adv_tPosPion.getCoulPion();
+
+                                        /**** Récupération de la ligne et la colonne de la case
+                                         * du coup jouer par l'adversaire *******/
                                         TCase adv_tCase = adv_tPosPion.getPosPion();
                                         adv_ligne = adv_tCase.getL();
                                         adv_colonne = adv_tCase.getC();
@@ -263,7 +323,13 @@ public class Client extends Newton {
                                     }
                                     else
                                     {
+                                        /**** dans le cas ou l'adversaire a fait un coup de type DEPL ********/
+
+                                        /**** Récupération de la couleur des pions de joueur *******/
                                         adv_coulPion = adv_tDeplPion.getCoulPion();
+
+                                        /**** Récupération de la ligne et la colonne de la case
+                                         * du coup jouer par l'adversaire *******/
                                         adv_ligne = adv_tDeplPion.getLgPionD();
                                         adv_colonne = adv_tDeplPion.getColPion();
                                     }
@@ -272,19 +338,33 @@ public class Client extends Newton {
                                     comm.coupAdversaire(adv_tcoup,adv_colonne,adv_ligne,adv_coulPion);
                                     /*********************************************************/
 
+                                    System.out.println("La grille après le coup de l'adversaire "+grille.getGrilleTotale());
+
 
                                 }
                                 else if(adv_tValCoup == TValCoup.TIMEOUT || adv_tValCoup == TValCoup.TRICHE)
                                 {
+                                    /*** Dans le cas ou le coup de l'adversaire n'est pas valide soit TRICHE ou TIMEOUT *******/
                                     mes_parties_gagnees++;
                                     num_partie++;
+
+                                    /*** reinitialiserGrille la grille *****/
+                                    Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                                    comm.reinitialiserGrille(grille2);
+
                                     continue;
                                 }
 
                             }
                             else if(mon_tValCoup == TValCoup.TIMEOUT || mon_tValCoup == TValCoup.TRICHE)
                             {
+                                /*** Dans le cas ou mon coup n'est pas valide soit TRICHE ou TIMEOUT *******/
                                 num_partie++;
+
+                                /*** reinitialiserGrille la grille *****/
+                                Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                                comm.reinitialiserGrille(grille2);
+
                                 continue;
                             }
                             break;
@@ -292,28 +372,53 @@ public class Client extends Newton {
                 }
                 else
                 {
+                    /***** Dans le cas où je suis le joueur avec des pions bleus et on est dans la 2 eme partie
+                     *  ou je suis le joueur avec des pions rouges et partie 1
+                     *  le joueur commence recvoir le coup de l'adversaire puis il envoi son coup et attent la validation du serveur
+                     */
 
+
+                    /********* Attent de la réponse de serveur pour l'adversaire et en met la réponse dans
+                     * une instance TCouprep puis on affect les valeur recu dans des variables
+                     */
                     TCoupRep adv_tCoupRep = new TCoupRep();
                     adv_tCoupRep.recive(is);
-
                     TCodeRep adv_tCodeRep = adv_tCoupRep.getErr();
                     TValCoup adv_tValCoup = adv_tCoupRep.getValidCoup();
                     TPropCoup adv_tPropCoup_serveur = adv_tCoupRep.getPropCoup();
 
 
                     if (adv_tPropCoup_serveur == GAGNE) {
+                        /******* Si le serveur nous informe que l'adversaire a gagné le matche *********/
                         adv_parties_gagnees++;
                         affichageresultat(1, num_partie, name_adversaire);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     } else if (adv_tPropCoup_serveur == NUL) {
+                        /******* Si le serveur nous informe que c'est un matche null *********/
                         affichageresultat(0, num_partie, name_adversaire);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     } else if (adv_tPropCoup_serveur == PERDU) {
+                        /******* Si le serveur nous informe que l'adversaire a perdu le matche *********/
                         affichageresultat(1, num_partie, name1);
                         mes_parties_gagnees++;
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     }
 
@@ -321,6 +426,11 @@ public class Client extends Newton {
 
                     if (adv_tValCoup == TValCoup.VALID) {
 
+                        /*** Dans le cas ou le coup de l'adversaire était valide *******/
+
+                        /**** l'attente de la requête de l'adversaire
+                         * * et on va mettre cette réponse dans une instance de la classe TcoupReq
+                         * puis on affecte les valeur recu dans des variables ****/
                         TCoupReq adv_tCoupReq = new TCoupReq();
                         adv_tCoupReq.recive(is);
                         TIdReq adv_id_req = adv_tCoupReq.getIdRequest();
@@ -334,166 +444,159 @@ public class Client extends Newton {
                         TLg adv_ligne;
                         TCol adv_colonne;
 
-                        if (adv_tcoup == TCoup.POSE) {
+                        if(adv_tcoup == TCoup.POSE)
+                        {
+                            /**** dans le cas ou l'adversaire a fait un coup de type POSE ********/
+
+                            /**** Récupération de la couleur des pions de joueur *******/
                             adv_coulPion = adv_tPosPion.getCoulPion();
+
+                            /**** Récupération de la ligne et la colonne de la case
+                             * du coup jouer par l'adversaire *******/
                             TCase adv_tCase = adv_tPosPion.getPosPion();
                             adv_ligne = adv_tCase.getL();
                             adv_colonne = adv_tCase.getC();
 
-                        } else {
+                        }
+                        else
+                        {
+                            /**** dans le cas ou l'adversaire a fait un coup de type DEPL ********/
+
+                            /**** Récupération de la couleur des pions de joueur *******/
                             adv_coulPion = adv_tDeplPion.getCoulPion();
+
+                            /**** Récupération de la ligne et la colonne de la case
+                             * du coup jouer par l'adversaire *******/
                             adv_ligne = adv_tDeplPion.getLgPionD();
                             adv_colonne = adv_tDeplPion.getColPion();
                         }
 
-                        //@TODO Mise a jour de la grille dans le moteur IA
+                        /************** Update Grille apès Coup Adv ***********/
+                        comm.coupAdversaire(adv_tcoup,adv_colonne,adv_ligne,adv_coulPion);
+                        /*********************************************************/
+
+                        System.out.println("La grille après le coup de l'adversaire "+grille.getGrilleTotale());
+
 
 
                     } else if (adv_tValCoup == TValCoup.TIMEOUT || adv_tValCoup == TValCoup.TRICHE) {
+                        /*** Dans le cas ou le coup de l'adversaire n'est pas valide soit TRICHE ou TIMEOUT *******/
                         mes_parties_gagnees++;
                         affichageresultat(1, num_partie, name1);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     }
 
                     /**************  Requete COUP **************/
 
-                    /************ @TODO A récuprer de puis le Moteur IA *************/
+                    /************************ Récuperation du Coup depuis IA ************/
 
-                    mon_tcoup = TCoup.POSE; // POSE | DEPL (Réceperation depuis le Moteur IA)
-
-                    TLg ma_ligne = F;
-                    TCol ma_clonne = CINQ;
-
-
-
-                    System.out.println("Entrez le Coup qui vous souhaitez jouer\n (1 ==> Poser un Pion) \n  (2 ==> Deplacer un Pion) ");
-                    Scanner sc1 = new Scanner(System.in);
-                    Scanner sc2 = new Scanner(System.in);
-                    Scanner sc3 = new Scanner(System.in);
-                    coup = sc1.nextInt();
-
-                    if(coup==1)
-                    { // Poser un Pion
-                        System.out.println("Entrez la Colonne ou Poser le Pion (1,2,3,4,5) ");
-                        colonne = sc2.nextInt();
-
-                        System.out.println("Entrez la Ligne ou Pose le Pion (A,B,C,D,E,F) ");
-                        ligne = sc3.nextLine();
-                    }
-                    else
-                    { //Deplacer un Pion
-                        System.out.println("Entrez la Colonne du Pion a déplacer (1,2,3,4,5) ");
-                        colonne = sc2.nextInt();
-
-                        System.out.println("Entrez la Ligne ou déplacer le Pion (A,B,C,D,E,F)");
-                        ligne = sc3.nextLine();
-                    }
-
-                    switch (ligne.toUpperCase())
-                    {
-                        case "A":
-                            ma_ligne = A;
-                            break;
-                        case "B":
-                            ma_ligne = B;
-                            break;
-                        case "C":
-                            ma_ligne = C;
-                            break;
-                        case "D":
-                            ma_ligne = D;
-                            break;
-                        case "E":
-                            ma_ligne = E;
-                            break;
-                        case "F":
-                            ma_ligne = F;
-                            break;
-                        case "G":
-                            ma_ligne = F;
-                            break;
-                        case "H":
-                            ma_ligne = F;
-                            break;
-                        default:
-                            System.out.println("Numero de Ligne invalide");
-                    }
-                    switch (colonne)
-                    {
-                        case 1 :
-                            ma_clonne = UN;
-                            break;
-                        case 2 :
-                            ma_clonne = DEUX;
-                            break;
-                        case 3 :
-                            ma_clonne = TROIS;
-                            break;
-                        case 4 :
-                            ma_clonne = QUATRE;
-                            break;
-                        case 5 :
-                            ma_clonne = CINQ;
-                            break;
-                        default:
-                            System.out.println("Numero de Colonne invalide");
-                    }
-
+                    /**** Récupération du meilleur coup depuis prolog pour jouer avec ****////
+                    Term mc = comm.getMeilleurCoup();
 
                     /******************************************************************/
+
+                    System.out.println("La grille après jouer mon coup "+grille.getGrilleTotale());
+
 
                     TPosPion tPosPion;
                     TDeplPion tDeplPion;
                     TCoupReq ma_tCoupReq ;
 
+                    /**** Initialisation de l'id de la requête avec COUP ********/
                     TIdReq ma_requete_coup = COUP;
-                    TPropCoup ma_tPropCoup_client = CONT; // A modifier  on le récuper depuis le Moteur IA
+
+                    /**** Initialisation de proposition de coup avec la valeur récupérait depuis l'IA ********/
+                    TPropCoup ma_tPropCoup_client = comm.getpropCoup();
+                    /**** Initialisation de type de deplacement de coup avec la valeur récupérait depuis l'IA ********/
+                    mon_tcoup = comm.getTypeDeplacement();
+
 
                     if(mon_tcoup == TCoup.POSE)
                     {
-                        TCase tCase = new TCase(ma_ligne, ma_clonne);
+                        /**** dans le cas ou le deplacement est un POSE de pion ********/
+                        /**** Récupération de la case du coup a jouer depuis l'IA dans laquelle on pose le pion *******/
+                        TCase tCase = comm.getCoup();
+                        /**** initilaisation de la classe TPosPion avec la couleur des pions et la case récupérait depuis l'IA ****/
                         tPosPion = new TPosPion(ma_coulPion, tCase);
+                        /**** initilaisation de la classe TDeplPion avec le vide car on a pas un deplacement ****/
                         tDeplPion = new TDeplPion();
+                        /**** Initialisation de la classe TCoupReq avec les valeurs déjà initialiser et le num partie ****/
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
+
+                        System.out.println("Coup a jouer : \nType de deplacement :"+mon_tcoup+"\nLigne : "+tCase.getL()+"\nColonne : "+tCase.getC()+"\nType de coup :"+ma_tPropCoup_client);
+
                     }
                     else
                     {
-                        tDeplPion = new TDeplPion(ma_coulPion, ma_clonne, ma_ligne);
+                        /**** dans le cas ou le deplacement est un Deplacement de pion ********/
+                        /**** Récupération de la la ligne et la colonne du coup a jouer depuis l'IA dans laquelle on pose le pion *******/
+                        TLg tligne = comm.getLigne();
+                        TCol tcolonne = comm.getCol();
+                        /**** initilaisation de la classe TDeplPion avec la couleur des pions et la case récupérait depuis l'IA ****/
+                        tDeplPion = new TDeplPion(ma_coulPion, tcolonne, tligne);
+                        /**** initilaisation de la classe TPosPion avec le vide car on a un deplacement ****/
                         tPosPion = new TPosPion();
+                        /**** Initialisation de la classe TCoupReq avec les valeurs déjà initialiser et le num partie ****/
                         ma_tCoupReq = new TCoupReq(ma_requete_coup, num_partie, mon_tcoup, tPosPion, tDeplPion, ma_tPropCoup_client);
+                        System.out.println("Coup a jouer : \nType de deplacement :"+mon_tcoup+"\nLigne : "+tligne+"\nColonne : "+tcolonne+"\nType de coup :"+ma_tPropCoup_client);
+
                     }
 
-
+                    /**** Envoi de la requete dans le outputStram ****/
                     ma_tCoupReq.send(os);
-
 
                     /******** Réponse COUP ***********/
 
+                    /****** Création d'une instance de classe TcoupRep et l'attent de la reponse de serveur *******/
                     TCoupRep mon_tCoupRep = new TCoupRep() ;
                     mon_tCoupRep.recive(is);
 
+                    /********** initilaisation des variables avec les valeurs recu ************/
                     TCodeRep mon_tCodeRep = mon_tCoupRep .getErr();
                     TValCoup mon_tValCoup = mon_tCoupRep .getValidCoup();
                     TPropCoup mon_tPropCoup_serveur = mon_tCoupRep.getPropCoup();
 
                     if(mon_tPropCoup_serveur == GAGNE )
                     {
+                        /******* Si le serveur nous informe qu'on a gagné *********/
                         mes_parties_gagnees++;
                         affichageresultat(1, num_partie, name1);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     }
                     else if(mon_tPropCoup_serveur == NUL)
                     {
+                        /******* Si le serveur nous informe qu'on a fait un matche NUL *********/
                         affichageresultat(0, num_partie, name1);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     }
                     else if(mon_tPropCoup_serveur == PERDU)
                     {
+                        /******* Si le serveur nous informe qu'on a perdu le matche *********/
                         affichageresultat(1, num_partie, name_adversaire);
                         num_partie++;
+
+                        /*** reinitialiserGrille la grille *****/
+                        Grille grille2 = new Grille( mon_numjoueur,fileIA);
+                        comm.reinitialiserGrille(grille2);
+
                         continue;
                     }
 
@@ -515,6 +618,7 @@ public class Client extends Newton {
                             System.out.println(" Validation de la requete ");
                             if(mon_tValCoup == TValCoup.TIMEOUT || mon_tValCoup == TValCoup.TRICHE)
                             {
+                                /*** Dans le cas ou mon coup n'est pas valide soit TRICHE ou TIMEOUT *******/
                                 affichageresultat(1, num_partie, name_adversaire);
                                 num_partie++;
                                 continue;
@@ -530,14 +634,15 @@ public class Client extends Newton {
 
 
             }
-
-
+            s.close();
         } catch (UnknownHostException e) {
             System.out.println("Unknown host" + e);
         } catch (IOException e) {
             System.out.println("IO exception" + e);
         }
     }
+
+    /****** Fonction pour afficher le resultat de matche pour le client a chaque fin de matche **********/
     public static void affichageresultat(int joueur, int partie, String name)
     {
         if(joueur == 0)
