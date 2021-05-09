@@ -4,7 +4,7 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Les tests unitaires :%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:-begin_tests(newtontests).
+:-begin_tests(newtontest).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 test('etatGagnant(Grille,Player)',[Joueur == 1]) :-
     etatGagnant([
@@ -48,6 +48,7 @@ test('moveDown(Colonne, Grille, NvGrille)',[NVG == [[[2,8],r],[[4,8],r],[[1,8],r
 test('moveDown(Colonne, Grille, NvGrille)',[NVG == [[[1,7],r],[[4,8],r],[[1,8],r],[[3,7],r],[[5,7],r]]]) :-
     moveDown(1, [[[1,6],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]], NVG).
 
+
 test('deplacement(Grille, Player, NVGrille,d)',
         [NVG ==  [[[[1,7],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,8],r],[[3,7],r],[[5,7],r]]]
         ]) :-
@@ -75,7 +76,11 @@ deplacementN([[[[1,8],b],[[2,6],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[1,6
 [[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],2, NVG,p).
 
 
-:-end_tests(newtontests).
+test('deplacementN(Grille, Player, NVGrille,p)',[NVG == [[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[1,6],r],[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]]]) :-
+updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 1, r, p, NVG).
+
+
+:-end_tests(newtontest).
 
 
 

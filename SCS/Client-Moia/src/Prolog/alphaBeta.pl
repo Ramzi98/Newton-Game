@@ -7,8 +7,6 @@
 :- include('Board_Game.pl').
 
 
-%% getLigneElementsD(1,3,8,[[[1,8],b],[[2,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],E).
-
 %%% getLigneElementsD/5 : Avoir les pions d'une ligne en commençant par une collone debut vers une collone de fin de droite a gauche
 getLigneElementsD(Fin,Fin,L,PG,1) :-
         member([[Fin,L],_],PG),
@@ -29,7 +27,6 @@ getLigneElementsD(Debut,Fin,L,PG,E) :-
         getLigneElementsD(NvDebut,Fin,L,PG,E),
         !.
 
-%getLigneElementsG(1,3,8,[[[1,8],b],[[2,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],E).
 %%% getLigneElementsD/5 : Avoir les pions d'une ligne en commençant par une collone debut vers une collone de fin de gauche a droite
 
 getLigneElementsG(Fin,Fin,L,PG,1) :-
@@ -51,7 +48,6 @@ getLigneElementsG(Debut,Fin,L,PG,E) :-
         getLigneElementsG(NvDebut,Fin,L,PG,E),
         !.
 
-%% getColElements(6,4,1,[[[1,6],b],[[1,1],b],[[1,5],b],[[1,4],b],[[1,4],b],[[4,7],b]],E).
 %%% getColElements/5 : Avoir les pions d'une colonne en commençant par une ligne debut vers une ligne de fin 
 
 getColElements(Fin,Fin,C,PG,1) :-
@@ -73,7 +69,6 @@ getColElements(Debut,Fin,C,PG,E) :-
         !.
 
 
-%% getDiagElements(1,6,2,[[[1,6],b],[[1,1],b],[[1,5],b],[[1,4],b],[[2,5],b],[[4,7],b]],E).
 %%% getDiagElements/5 : Avoir les pions d'une diagonale en commençant par une ligne et une colonne
 
 getDiagElements1(_,_,0,_,1):-!.
@@ -159,7 +154,6 @@ nbNSigne(PG, N, R) :-
 nb1Signe(PG, R) :-
         nbNSigne(PG, 1, R).
 
-%nb2Signe([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[2,6],b],[[2,5],b]],E).
 
 % Vrai si la Grille contient R lignes ou colonnes ou diagonales de 2 Pions
 nb2Signe(PG, R) :-
@@ -185,7 +179,7 @@ nb5Signe(PG, R) :-
 % NB4Adv : nb de lignes/col/diag comportant 4 fois le Pion de l'advarsaire
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%evalue([[[1,7],r],[[2,7],r],[[3,7],r],[[4,7],r],[[5,7],r],[[1,2],r],[[1,3],r],[[1,4],r],[[2,3],r],[[2,4],r]],[[[1,8],b],[[2,8],b],[[3,8],b],[[4,8],b],[[5,8],b],[[1,6],b],[[2,6],b],[[5,6],b],[[3,6],b],[[4,6],b],[[1,5],b],[[2,5],b],[[1,1],b]],0,E).
+
 evalue(_GrillePlayer, GrilleAdversaire, Prof, Eval) :-
         %%etatGagnantPlayer(GrilleAdversaire),
         nb5Signe(GrilleAdversaire, NB5Adv), 
@@ -209,19 +203,13 @@ evalue(GrillePlayer, GrilleAdversaire, _Prof, Eval) :-
         Eval is  4 * (NB4 - NB4Adv) + 3 * (NB3 - NB3Adv) + 2 * (NB2 - NB2Adv),
         !.
         
-evalue(_GrillePlayer, _GrilleAdversaire, _Prof, 0) :- !. %% A enlver probablement
+evalue(_GrillePlayer, _GrilleAdversaire, _Prof, 0) :- !.
 
-%evalue([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]], [[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]], Prof, Eval).
-%evalue([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[2,6],b],[[2,5],b]], [[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r],[[1,6],r],[[1,5],r]], 2, Eval).
-%Eval = 0.
-
-%nb2Signe([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[2,6],b],[[2,5],b]], NB2).
-%nb2Signe([[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r],[[1,6],r],[[1,5],r]], NB2).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MIN MAX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%minCoups([[[[[1,6],b],6]],[[[[2,4],b],7]],[[[[3,6],b],2]],[[[[4,6],b],2]],[[[[5,6],b],2]]],[10,10],S).
+
 %%% minCoups/3 : Avoir le coup avec le cout le plus minimum d'une liste des coups et leurs couts associé
 
 minCoups([], Meilleur, Meilleur).
@@ -233,7 +221,6 @@ minCoups([[Coup,Eval]|L], [_MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEv
 minCoups([_|L], [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]) :-
         minCoups(L, [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]).
 
-%maxCoups([[[[[1,6],b],6]],[[[[2,4],b],7]],[[[[3,6],b],2]],[[[[4,6],b],2]],[[[[5,6],b],2]]],[0,0],S).
 %%% minCoups/3 : Avoir le coup avec le cout le plus maximum d'une liste des coups et leurs couts associé
 
 maxCoups([], Meilleur, Meilleur).
@@ -246,7 +233,6 @@ maxCoups([_|L], [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]) :-
         maxCoups(L, [MeillCoupActuel,MeillEvalActuel], [MeillCoup,MeillEval]).
 
 
-%getCoupPossible([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NVG, Coup, TypeDepl).
 
 
 %%% getCoupPossible/4 : Avoir les coups possible de faire à partir d'une grille 
@@ -295,7 +281,7 @@ arretJoueur(_Grille,_Player,TourMax,TourMax,n):- !.
 arretJoueur(_Grille,_Player,_Tour,_TourMax,c):- !.
 
 
-%genererCoup([[[[1,8],b],[[3,8],b],[[2,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1,79,80,Coup ,NvGrille, TyCoup, Typdepl).
+
 %%% genererCoup/8 : Generer les coups possible d'une configuration et determiner si on peut continuer ou pas 
 genererCoup(Grille,Player,Tour,TourMax,Coup,NvGrille,TypeCoup,TypeDeplacement):-
 
@@ -303,14 +289,14 @@ genererCoup(Grille,Player,Tour,TourMax,Coup,NvGrille,TypeCoup,TypeDeplacement):-
         TourN is Tour+1,
         arretJoueur(NvGrille,Player,TourN,TourMax,TypeCoup).
 
-%parcoursSuivant([[[[1,8],b],[[3,8],b],[[2,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1,79,80,NvGrilleList).
+
 %%% parcoursSuivant/5 : Generer touts les configurations filles d'une grille
 parcoursSuivant(Grille,Player,Tour,TourMax,NvGrilleList):-
 
         findall([NvGrille, Coup, TypeCoup, TypeDeplacement],genererCoup(Grille,Player,Tour,TourMax,Coup,NvGrille,TypeCoup ,TypeDeplacement),NvGrilleList).
 
 
-%getCoupList([[[[1,8],b],[[3,8],b],[[2,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, Coup).
+
 %%% getCoupList/3 : generer Une liste des coups avec leurs evaluation
 getCoupList(Grille,Player,CoupListe):-
 
@@ -389,11 +375,9 @@ maxEvalPlateaux([[Grille,Coup,TypeCoup,TypeDeplacement]|LGrille], Player, Tour, 
         min_member(Beta2, [Beta,MeillEval]),
         maxEvalPlateaux(LGrille,Player, Tour, TourMax, Prof, ProfParcourue, Alpha, Beta2, [[[Grille,Coup,TypeCoup,TypeDeplacement],MeillEval]|Acc], CoupsEvalues).
 
-%alphaBeta([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],1, 0, 80, 8, MeilleurCoup).
-%parcoursSuivant([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],1, 0, 80, 10, PS).
-%minEvalPlateaux([[[[[[1,7],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,8],r],[[3,7],r],[[5,7],r]]],[[1,7],b],c],[[[[[3,7],b],[[1,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,8],r],[[5,7],r]]],[[3,7],b],c],[[[[[5,7],b],[[1,8],b],[[3,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,8],r]]],[[5,7],b],c],[[[[[1,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[1,6],b],c],[[[[[2,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[2,6],b],c],[[[[[3,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[3,6],b],c],[[[[[4,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[4,6],b],c],[[[[[5,6],b],[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],[[5,6],b],c]], 1, 1, 80, 9, 1, -10000, 10000, [], CoupsEvalues).,
 
-%alphaBeta([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r],[[1,6],r],[[2,6],r],[[3,6],r],[[4,6],r],[[1,6],r]]],1, 0, 80, 4, MeilleurCoup).
+
+
 %alphaBeta/10: Lancement de l'algorithm AlphaBeta pour une profondeur donné pour avoir les meilleures coups.
 
 alphaBeta(Grille,Player, Tour, TourMax, Prof, MeilleurCoup) :-

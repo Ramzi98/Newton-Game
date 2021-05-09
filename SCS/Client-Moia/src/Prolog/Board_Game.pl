@@ -87,9 +87,7 @@ deplacable(Case,G):-
 	B = 8,
 	caseVide([[A,1],_],G).
 	
-
-%:-getCaseLigneH/2
-% Verifié si un pion est dans la ligne H .
+	
 getCaseLigneH(PGrille,Case) :-
 	PGrille = [[_,Couleur]|_],
 	Case = [[1, 8],Couleur],
@@ -123,7 +121,6 @@ moveDown(_,[],[]).
 moveDown(Colonne, Grille, NvGrille) :-
 	Grille = [[[Colonne,B], Couleur] | Reste],
 	N is B + 1,
-	%% N =< 8,  pas besoin de cette condition elle est satisfaite de base
 	moveDown(Colonne, Reste, NvGrille1),
 	!,
 	NvGrille = [[[Colonne,N], Couleur] | NvGrille1].
@@ -181,8 +178,6 @@ nextLigneVide(Case, Grille, NvCase) :-
 movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 	Grille = [G1, G2],
 	Player = 1,
-	%grilleinitiale(Player, PGrille),
-	%PGrille = G1,
 	retirerCase(Case, G1, NVG1),
 	NVG = [NVG1, G2],
 	nextLigneVide(Case, NVG, NvCase),
@@ -195,8 +190,6 @@ movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 	Grille = [G1, G2],
 	Player = 2,
-	%grilleinitiale(Player, PGrille),
-	%PGrille = G2,
 	retirerCase(Case, G2, NVG2),
 	NVG = [G1, NVG2],
 	nextLigneVide(Case, NVG, NvCase),
@@ -209,30 +202,26 @@ movepiece(Case, NvCase, Player,Couleur, Grille, NvGrille):-
 
 %%%%%%%%%%%%%%%%% deplacement/3 effectuer un deplacement d'un pion existant sur la grille vers une autre case %%%%%%%%%%%%%%%%%%%%%%
 
-%deplacement([[[[1,8],b],[[3,8],b],[[1,6],b],[[5,8],b],[[2,7],b],[[2,5],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NvGrille).
 %Deplacement depuis la ligne H
 deplacement(Grille, Player, NVGrille) :-
 	joueurCouleur(Player, Couleur),
-	%grilleinitiale(Player, PGrille),
     Player = 1,
 	Grille = [G1,_],
 	getCaseLigneH(G1, Case),
-	deplacable(Case, Grille), % a enlever proablement 
+	deplacable(Case, Grille),  
 	movepiece(Case, _NvCase,Player ,Couleur,Grille , NVGrille).
 
 %Deplacement depuis la ligne H
 deplacement(Grille, Player, NVGrille) :-
 	joueurCouleur(Player, Couleur),
-	%grilleinitiale(Player, PGrille),
 	Player = 2,
 	Grille = [_,G2],
 	getCaseLigneH(G2, Case),
-	deplacable(Case, Grille), % a enlever proablement 
+	deplacable(Case, Grille),  
 	movepiece(Case, _NvCase,Player ,Couleur,Grille , NVGrille).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%% allCase([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],r,1,Case).
 
 
 %%%%%%%%%%%%%%%%% allCase/3 Récupère  les cases vides pour toutes les Colonne %%%%%%%%%%%%%%%%%%%%%%
@@ -291,8 +280,6 @@ addCaseGrille(Grille, Couleur, Case, NVGrille) :-
 	NVG2 = [Case|G2],
 	NVGrille = [G1,NVG2].
 
-%% deplacementPoche([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NVGrille).
-%% deplacementPoche([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[1,6],b],[[1,5],b],[[1,4],b],[[1,3],b],[[1,2],b],[[1,1],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 1, NVGrille).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%% deplacementPoche/3 Effectuer un deplacement de poche et generer la nouvelle grille en fonction d'un joueur 
@@ -316,11 +303,7 @@ deplacementPoche(Grille, Player, NVGrille) :-
 	allCase(Grille, Couleur, Case),
 	addCaseGrille(Grille, Couleur, Case, NVGrille).
 
-	%%%% deplacement([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],1,NVG).
-	%%%% contrainteVerticale([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]],[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]]).
-	%%%% etatGagnant([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[4,6],b],[[4,5],b],[[4,4],b],[[4,3],b],[[4,2],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]],Player).
 
- 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%% deplacementN/4 Effectuer un deplacement de pion ou de poche pour un joueur
 
@@ -480,8 +463,6 @@ etatGagnant(Grille,Player):-
 etatGagnantPlayer(PlayerGrille):-
 	contrainte(PlayerGrille,PlayerGrille).
 
-%%% updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 1, r, p, NVG).
-% updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 4, b, p, NVG).
 
 %%%%%%%%%%%%%% Pose %%%%%%%%%%%%%%%%%%%
 updateGrille(Grille ,Ligne, Colonne, Couleur ,TypeCoup , NVGrille) :-
