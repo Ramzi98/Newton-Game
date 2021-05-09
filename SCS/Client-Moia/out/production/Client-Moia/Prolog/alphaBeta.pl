@@ -128,7 +128,7 @@ nbNSigne(PG, N, R) :-
         %getLigneElementsD(5,N,4,PG,R23), %% R3 = 1 si on a N Element dans la ligne 4 de gauche a droite 
         %getLigneElementsD(5,N,3,PG,R24), %% R4 = 1 si on a N Element dans la ligne 3 de gauche a droite  
         %getLigneElementsD(5,N,2,PG,R25), %% R5 = 1 si on a N Element dans la ligne 2 de gauche a droite  
-       % getLigneElementsD(5,N,1,PG,R26), %% R6 = 1 si on a N Element dans la ligne 1 de gauche a droite 
+        %getLigneElementsD(5,N,1,PG,R26), %% R6 = 1 si on a N Element dans la ligne 1 de gauche a droite 
 
         %%% Vérification des Colonnes
         M1 is 6 - N + 1,
@@ -184,11 +184,13 @@ nb5Signe(PG, R) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 evalue(_GrillePlayer, GrilleAdversaire, Prof, Eval) :-
+        %%etatGagnantPlayer(GrilleAdversaire),
         nb5Signe(GrilleAdversaire, NB5Adv), 
         NB5Adv >= 1,
         Eval is -1000 + Prof,
         !.
 evalue(GrillePlayer, _GrilleAdversaire, Prof, Eval) :-
+        %%etatGagnantPlayer(GrillePlayer),
         nb5Signe(GrillePlayer, NB5), 
         NB5 >= 1,
         Eval is 1000 - Prof,
@@ -207,9 +209,12 @@ evalue(GrillePlayer, GrilleAdversaire, _Prof, Eval) :-
 evalue(_GrillePlayer, _GrilleAdversaire, _Prof, 0) :- !. %% A enlver probablement
 
 %evalue([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]], [[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]], Prof, Eval).
-%evalue([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[2,6],b],[[2,5],b]], [[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r],[[1,6],r],[[1,5],r]], 
-%2, Eval).
+%evalue([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[2,6],b],[[2,5],b]], [[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r],[[1,6],r],[[1,5],r]], 2, Eval).
 %Eval = 0.
+
+%nb2Signe([[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b],[[2,6],b],[[2,5],b]], NB2).
+%nb2Signe([[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r],[[1,6],r],[[1,5],r]], NB2).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% MIN MAX %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

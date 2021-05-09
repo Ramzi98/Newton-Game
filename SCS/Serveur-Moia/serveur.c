@@ -808,8 +808,8 @@ int main(int argc, char** argv)
 			}
 			if (coupBool == true && propCoup != CONT)
 			{
-			if(propCoup == GAGNE){scoreJ1PERTE++; scoreJ2GAGNE++;}
-			if(propCoup == PERDU){scoreJ2PERTE++; scoreJ1GAGNE++;}
+			if(propCoup == GAGNE){scoreJ2PERTE++; scoreJ1GAGNE++;}
+			if(propCoup == PERDU){scoreJ1PERTE++; scoreJ2GAGNE++;}
 			if(propCoup == NUL){scoreJ1NUL++;scoreJ2NUL++;}
 				numPartie++;
 				break;

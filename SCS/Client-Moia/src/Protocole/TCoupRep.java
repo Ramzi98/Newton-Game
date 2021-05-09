@@ -55,14 +55,14 @@ public class TCoupRep extends Newton{
     public void send(OutputStream os) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(size());
         putInBuffer(buffer);
-        os.write(buffer.flip().array());
+        os.write((byte[]) buffer.flip().array());
     }
 
     @Override
     public void recive(InputStream is) throws IOException {
         byte[] bytes = new byte[size()];
         is.read(bytes);
-        ByteBuffer buffer = ByteBuffer.allocate(size()).put(bytes).flip();
+        ByteBuffer buffer = (ByteBuffer) ByteBuffer.allocate(size()).put(bytes).flip();
         getFromBuffer(buffer);
     }
 
