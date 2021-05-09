@@ -10,8 +10,8 @@ CLASSPATH = ../lib/jpl.jar
 
 CLASSES = Client.java \
           CommunicationProlog.java \
-		Grille.java \
-		Protocole/Newton.java \
+		  Grille.java \
+		  Protocole/Newton.java \
           Protocole/TCase.java \
           Protocole/TCodeRep.java \
           Protocole/TCol.java \
@@ -29,7 +29,7 @@ CLASSES = Client.java \
           Protocole/TValCoup.java 
 
 run: Client.class
-	java -Djava.library.path=/usr/lib/swi-prolog/lib/x86_64-linux
+	java -D java.library.path=/usr/lib/swi-prolog/lib/x86_64-linux
 	java -cp $(CLASSPATH): Client $(ADRESSE) $(PORT) $(NAME) 
 	make clean
 
