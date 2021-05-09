@@ -15,46 +15,36 @@ int main(int argc, char** argv)
 		err,
 		nfsd = 6;
 	fd_set readSet;
+	fd_set readSet2;
 
-	struct timeval tv1;
-	tv1.tv_sec = TIME_MAX;
-	tv1.tv_usec = 0;
-	struct timeval tv2;
-	tv2.tv_sec = TIME_MAX;
-	tv2.tv_usec = 0;
-	struct timeval tv3;
-	tv3.tv_sec = TIME_MAX;
-	tv3.tv_usec = 0;
-	struct timeval tv4;
-	tv4.tv_sec = TIME_MAX;
-	tv4.tv_usec = 0;
+
 
 
 	TIdReq codeReq;
 
-	TCoupReq reqCoup;
-	TCoupRep repCoup;
-	TPartieReq reqPartie;
-	TPartieRep repPartieJ1, repPartieJ2;
-	TPropCoup propCoup;
+	TCoupReq reqCoup; //requete d'un coup
+	TCoupRep repCoup; // reponse d'un coup
+	TPartieReq reqPartie; //reponse requete partie
+	TPartieRep repPartieJ1, repPartieJ2; //requete partie Joueur1 et Joueur2
+	TPropCoup propCoup;  //propriété Coup
 
-	int numPartie = 1;
-	char nomJoueur1[T_NOM];
-	char nomJoueur2[T_NOM];
+	int numPartie = 1; //numero de la partie
+	char nomJoueur1[T_NOM];  //nom du premeir joueur connecté
+	char nomJoueur2[T_NOM];  // nom du deuxieme joueur connecté
 	bool timeout = true;	//Avec timeout
-	bool validation = true; //avec timeout
-	char* time = "--noTimeout";
-	char* valid = "--noValid";
-	bool waitPartie1 = true;
-	bool waitPartie2 = false;
-	bool selectionPartie = false;
-	int retval;
-	int scoreJ1GAGNE = 0;
-	int scoreJ1PERTE = 0;
-	int scoreJ1NUL = 0;
-	int scoreJ2GAGNE = 0;
-	int scoreJ2PERTE = 0;
-	int scoreJ2NUL = 0;
+	bool validation = true; //avec validation
+	char* time = "--noTimeout"; //flag pas de timeout
+	char* valid = "--noValid"; //flag pas de validation
+	bool waitPartie1 = true; // attente du joueur 1
+	bool waitPartie2 = false; // attente joueur 2
+	bool selectionPartie = false; //mode initialisation de partie
+	int retval; //valeur retourné pour le timeout
+	int scoreJ1GAGNE = 0;  //nombre des matches gagnés par le joueur 1 
+	int scoreJ1PERTE = 0;  //nombre des matches perdu par le joueur 1
+	int scoreJ1NUL = 0;    //nombre des matches nuls par le joueur 1
+	int scoreJ2GAGNE = 0;  //nombre des matches gagnés par le joueur 2
+	int scoreJ2PERTE = 0;  //nombre des matches perdu par le joueur 2
+	int scoreJ2NUL = 0;    //nombre des matches nul par le joueur 2
 
 
 	// Affichage de la configuration du serveur
@@ -258,25 +248,16 @@ int main(int argc, char** argv)
 		{
 		
 		if(timeout){  /*Si la configuration du serveur est avec le timeout de 6 seconds*/
-		int retval = select(nfsd, &sockTrans1, NULL, NULL, &tv1); /*faire un select pour mettre en place un timer */
-		if(retval <= 0 ){  //Quand retval est 0 ou inferieure, ça veut dire que le temps d'attente est fini
-		 /*repondre le joueur par une reponse d'erreur et la validité est Timeouy */
-		   repCoup.err = ERR_COUP;
-		   repCoup.validCoup = TIMEOUT;
-		   repCoup.propCoup = PERDU;
-		   printf("Arbitre : fin attente coup pour BLEU\nmain: le joueur avec BLEU a depasse le temps\ntempsDepasse: debut pour joueur BLEU\ntempsDepasse : envoi message au joueur BLEU\ntempsDepasse : envoi message a l'adversaire ROUGE\n");
-		   err = send(sockTrans1, &repCoup, sizeof(TCoupRep), 0);
-	           err = send(sockTrans2, &repCoup, sizeof(TCoupRep), 0);
-	           
-
-		  printf("Match perdu par joueur %s\n",nomJoueur1);
-		   numPartie++; /* le premier joueur est perdant, On passe à la prochaine partie*/
-		   scoreJ1PERTE++;
-		   scoreJ2GAGNE++;
-		   break; 
+		struct timeval tv1;
+		tv1.tv_sec = TIME_MAX;
+		tv1.tv_usec = 0;
+		FD_ZERO(&readSet2);
+		FD_SET(sockTrans1, &readSet2);
+		//FD_SET(sockTrans2, &readSet);
+		 retval = select(sockTrans1 + 1, &readSet2, NULL, NULL, &tv1); /*faire un select pour mettre en place un timer */
 		}
-		}
-		/* Sinon, faire un recieve du coup joué par le joueur*/
+		if((retval > 0 && timeout )|| !timeout){ // Si il y'a un timeout qui n'a pas été depassé ( moins de 6 seconds ou y'a pas de timeout )
+		/* faire un recieve du coup joué par le joueur 1*/
 		err = recv(sockTrans1, &codeReq, sizeof(TIdReq), MSG_PEEK);
 		
 		switch (codeReq)
@@ -415,22 +396,15 @@ int main(int argc, char** argv)
 
 		if(timeout){
 		printf("main: attente du coup du joueur BLEU\n");
-		int retval = select(nfsd, &sockTrans2, NULL, NULL, &tv2);
-		if(retval <= 0 ){
-		   printf("Arbitre : fin attente coup pour ROUGE\nmain: le joueur avec ROUGE a depasse le temps\ntempsDepasse: debut pour joueur ROUGE\ntempsDepasse : envoi message au joueur ROUGE\ntempsDepasse : envoi message a l'adversaire BLEU\n");
-		   repCoup.err = ERR_COUP;
-		   repCoup.validCoup = TIMEOUT;
-		   repCoup.propCoup = PERDU;
-		   err = send(sockTrans1, &repCoup, sizeof(TCoupRep), 0);
-	           err = send(sockTrans2, &repCoup, sizeof(TCoupRep), 0);
-	           printf("Match perdu par joueur %s",nomJoueur2);
-	           scoreJ2PERTE++;
-		   scoreJ1GAGNE++;
-		   numPartie++;
-		   break;
-
+		FD_ZERO(&readSet2);
+		FD_SET(sockTrans2, &readSet2);
+		struct timeval tv2;
+		tv2.tv_sec = TIME_MAX;
+		tv2.tv_usec = 0;
+		int retval = select(sockTrans2+1, &readSet2, NULL, NULL, &tv2);
 		}
-		}
+		if((retval > 0 && timeout )|| !timeout){
+			
 		err = recv(sockTrans2, &codeReq, sizeof(TIdReq), MSG_PEEK);
 		if (err <= 0)
 		{
@@ -557,7 +531,41 @@ int main(int argc, char** argv)
 			break;
 		}
 	}
+		//Si le timeout est expiré erreur timeout ( selui la est le time out du joueur 2 fait au dexieme coup de la partie)
+		if(retval == 0 && timeout ){
+		   printf("Arbitre : fin attente coup pour ROUGE\nmain: le joueur avec ROUGE a depasse le temps\ntempsDepasse: debut pour joueur ROUGE\ntempsDepasse : envoi message au joueur ROUGE\ntempsDepasse : envoi message a l'adversaire BLEU\n");
+		   repCoup.err = ERR_COUP;
+		   repCoup.validCoup = TIMEOUT;
+		   repCoup.propCoup = PERDU;
+		   err = send(sockTrans1, &repCoup, sizeof(TCoupRep), 0);
+	           err = send(sockTrans2, &repCoup, sizeof(TCoupRep), 0);
+	           printf("Match perdu par joueur %s",nomJoueur2);
+	           scoreJ2PERTE++;
+		   scoreJ1GAGNE++;
+		   numPartie++;
+		   break;
 
+		}
+		}
+		
+		//Si le timeout est expiré erreur timeout ( selui la est le time out du joueur 1 fait au debut de la partie)
+		if(retval == 0 && timeout){  //Quand retval est 0 ou inferieure, ça veut dire que le temps d'attente est fini
+		 /*repondre le joueur par une reponse d'erreur et la validité est Timeouy */
+		   repCoup.err = ERR_COUP;
+		   repCoup.validCoup = TIMEOUT;
+		   repCoup.propCoup = PERDU;
+		   printf("Arbitre : fin attente coup pour BLEU\nmain: le joueur avec BLEU a depasse le temps\ntempsDepasse: debut pour joueur BLEU\ntempsDepasse : envoi message au joueur BLEU\ntempsDepasse : envoi message a l'adversaire ROUGE\n");
+		   err = send(sockTrans1, &repCoup, sizeof(TCoupRep), 0);
+	           err = send(sockTrans2, &repCoup, sizeof(TCoupRep), 0);
+	           
+
+		  printf("Match perdu par joueur %s\n",nomJoueur1);
+		   numPartie++; /* le premier joueur est perdant, On passe à la prochaine partie*/
+		   scoreJ1PERTE++;
+		   scoreJ2GAGNE++;
+		   break; 
+		}
+		}
 	/*-------------- Fin Partie 1 -------------------------*/
 
 	/*-------------- Debut Partie 2------------------------- */
@@ -570,24 +578,15 @@ int main(int argc, char** argv)
 	{
 
 		if(timeout){
-		printf("main: attente du coup du joueur ROUGE\n");
-		int retval = select(nfsd, &sockTrans2, NULL, NULL, &tv3);
-		if(retval <= 0 ){
-		   repCoup.err = ERR_COUP;
-		   repCoup.validCoup = TIMEOUT;
-		   repCoup.propCoup = PERDU;
-		    printf("Arbitre : fin attente coup pour BLEU\nmain: le joueur avec BLEU a depasse le temps\ntempsDepasse: debut pour joueur BLEU\ntempsDepasse : envoi message au joueur BLEU\ntempsDepasse : envoi message a l'adversaire ROUGE\n");
-		   err = send(sockTrans1, &repCoup, sizeof(TCoupRep), 0);
-	           err = send(sockTrans2, &repCoup, sizeof(TCoupRep), 0);
-
-		   scoreJ2PERTE++;
-		   scoreJ1GAGNE++;
-		   numPartie++;
-		   break;
-
+		FD_ZERO(&readSet2);
+		FD_SET(sockTrans2, &readSet2);
+		struct timeval tv3;
+		tv3.tv_sec = TIME_MAX;
+		tv3.tv_usec = 0;
+		int retval = select(sockTrans2+1, &readSet2, NULL, NULL, &tv3);
 		}
-		}
-		err = recv(sockTrans2, &codeReq, sizeof(TIdReq), MSG_PEEK);
+		if((retval > 0 && timeout )|| !timeout){
+			err = recv(sockTrans2, &codeReq, sizeof(TIdReq), MSG_PEEK);
 		if (err <= 0)
 		{
 
@@ -709,21 +708,14 @@ int main(int argc, char** argv)
 
 		if(timeout){
 		printf("main: attente du coup du joueur BLEU\n");
-		int retval = select(nfsd, &sockTrans1, NULL, NULL, &tv4);
-		if(retval <= 0 ){
-		   repCoup.err = ERR_COUP;
-		   repCoup.validCoup = TIMEOUT;
-		   repCoup.propCoup = PERDU;
-		   printf("Arbitre : fin attente coup pour ROUGE\nmain: le joueur avec ROUGE a depasse le temps\ntempsDepasse: debut pour joueur ROUGE\ntempsDepasse : envoi message au joueur ROUGE\ntempsDepasse : envoi message a l'adversaire BLEU\n");
-		   err = send(sockTrans1, &repCoup, sizeof(TCoupRep), 0);
-	           err = send(sockTrans2, &repCoup, sizeof(TCoupRep), 0);
-	           scoreJ1PERTE++;
-		   scoreJ2GAGNE++;
-		   numPartie++;
-		   break;
-
+		FD_ZERO(&readSet2);
+		FD_SET(sockTrans1, &readSet2);
+		struct timeval tv4;
+		tv4.tv_sec = TIME_MAX;
+		tv4.tv_usec = 0;
+		int retval = select(sockTrans1+1, &readSet2, NULL, NULL, &tv4);
 		}
-		}
+		if((retval > 0 && timeout )|| !timeout){
 		err = recv(sockTrans1, &codeReq, sizeof(TIdReq), MSG_PEEK);
 
 		if (err <= 0)
@@ -739,7 +731,6 @@ int main(int argc, char** argv)
 		{
 		case COUP:
 
-			
 
 			err = recv(sockTrans1, &reqCoup, sizeof(TCoupReq), 0);
 
@@ -853,7 +844,41 @@ int main(int argc, char** argv)
 
 			break;
 		}
-	}
+		}
+		
+		if(retval == 0 && timeout){
+		   repCoup.err = ERR_COUP;
+		   repCoup.validCoup = TIMEOUT;
+		   repCoup.propCoup = PERDU;
+		   printf("Arbitre : fin attente coup pour ROUGE\nmain: le joueur avec ROUGE a depasse le temps\ntempsDepasse: debut pour joueur ROUGE\ntempsDepasse : envoi message au joueur ROUGE\ntempsDepasse : envoi message a l'adversaire BLEU\n");
+		   err = send(sockTrans1, &repCoup, sizeof(TCoupRep), 0);
+	           err = send(sockTrans2, &repCoup, sizeof(TCoupRep), 0);
+	           scoreJ1PERTE++;
+		   scoreJ2GAGNE++;
+		   numPartie++;
+		   break;
+
+		}
+		}
+		
+		
+		if(retval == 0 && timeout){
+		   repCoup.err = ERR_COUP;
+		   repCoup.validCoup = TIMEOUT;
+		   repCoup.propCoup = PERDU;
+		    printf("Arbitre : fin attente coup pour BLEU\nmain: le joueur avec BLEU a depasse le temps\ntempsDepasse: debut pour joueur BLEU\ntempsDepasse : envoi message au joueur BLEU\ntempsDepasse : envoi message a l'adversaire ROUGE\n");
+		   err = send(sockTrans1, &repCoup, sizeof(TCoupRep), 0);
+	           err = send(sockTrans2, &repCoup, sizeof(TCoupRep), 0);
+
+		   scoreJ2PERTE++;
+		   scoreJ1GAGNE++;
+		   numPartie++;
+		   break;
+
+		}
+		}
+		
+
 	
 
 printf("Joueur %s - Matchs gagnes : %d / Matchs nuls : %d / Matchs perdus : %d\n",nomJoueur1,scoreJ1GAGNE,scoreJ1NUL,scoreJ1PERTE);
