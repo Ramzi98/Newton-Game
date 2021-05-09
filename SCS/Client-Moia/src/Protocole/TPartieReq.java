@@ -51,7 +51,7 @@ public class TPartieReq extends Newton {
     public void send(OutputStream os) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(size());
         putInBuffer(buffer);
-        os.write(buffer.flip().array());
+        os.write((byte[]) buffer.flip().array());
     }
 
 

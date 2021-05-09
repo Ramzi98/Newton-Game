@@ -632,7 +632,7 @@ public class Client extends Newton {
         }
     }
 
-    /****** Fonction pour afficher le resultat de matche pour le client a chaque fin de matche **********/
+    /****** Fonction pour afficher le resultat du matche pour le client a chaque fin de matche **********/
     public static void affichageresultat(int joueur, int partie, String name)
     {
         if(joueur == 0)
