@@ -153,6 +153,8 @@ nbNSigne(PG, N, R) :-
        % R is R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + R9 + R10 + R11 + R12 + R13 + R14 + R15 + R16 + R17 + R18 + R19 + R20 + R21 + R22 + R23 + R24 + R25 + R26.
         R is R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + R9 + R10 + R11 + R12 + R13 + R14 + R15 + R16 + R17 + R18 + R19 + R20.
 
+
+
 % Vrai si la Grille contient R lignes ou colonnes ou diagonales d'1 Pion
 nb1Signe(PG, R) :-
         nbNSigne(PG, 1, R).
@@ -183,6 +185,7 @@ nb5Signe(PG, R) :-
 % NB4Adv : nb de lignes/col/diag comportant 4 fois le Pion de l'advarsaire
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%evalue([[[1,7],r],[[2,7],r],[[3,7],r],[[4,7],r],[[5,7],r],[[1,2],r],[[1,3],r],[[1,4],r],[[2,3],r],[[2,4],r]],[[[1,8],b],[[2,8],b],[[3,8],b],[[4,8],b],[[5,8],b],[[1,6],b],[[2,6],b],[[5,6],b],[[3,6],b],[[4,6],b],[[1,5],b],[[2,5],b],[[1,1],b]],0,E).
 evalue(_GrillePlayer, GrilleAdversaire, Prof, Eval) :-
         %%etatGagnantPlayer(GrilleAdversaire),
         nb5Signe(GrilleAdversaire, NB5Adv), 
