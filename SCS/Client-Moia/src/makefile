@@ -1,7 +1,7 @@
 FLAGS = -cp
 JC = javac -cp
-#CLASSPATH = ../lib/jpl.jar
-CLASSPATH = /usr/lib/swi-prolog/lib/jpl.jar
+CLASSPATH = ../lib/jpl.jar
+#CLASSPATH = /usr/lib/swi-prolog/lib/jpl.jar
 
 
 .SUFFIXES: .java .class
@@ -29,6 +29,7 @@ CLASSES = Client.java \
           Protocole/TValCoup.java 
 
 run: Client.class
+	java -Djava.library.path=/usr/lib/swi-prolog/lib/x86_64-linux
 	java -cp $(CLASSPATH): Client $(ADRESSE) $(PORT) $(NAME) 
 	make clean
 
