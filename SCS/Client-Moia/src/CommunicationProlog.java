@@ -123,71 +123,71 @@ public class CommunicationProlog {
 
         switch (TermLigne.toString())
         {
-            case "1" -> {
+            case "1" : 
                 tLg = A;
                 break;
-            }
-            case "2" -> {
+            
+            case "2" : 
                 tLg = B;
                 break;
-            }
-            case "3" -> {
+            
+            case "3" : 
                 tLg = C;
                 break;
-            }
-            case "4" -> {
+            
+            case "4" : 
                 tLg = D;
                 break;
-            }
-            case "5" -> {
+            
+            case "5" : 
                 tLg = E;
                 break;
-            }
-            case "6" -> {
+            
+            case "6" : 
                 tLg = F;
                 break;
-            }
-            case "7" -> {
+            
+            case "7" : 
                 tLg = G;
                 break;
-            }
-            case "8" -> {
+            
+            case "8" : 
                 tLg = H;
                 break;
-            }
+            
 
-            default -> {
+            default : 
                 tLg = A;
                 break;
-            }
+            
         }
 
         switch (TermColonne.toString())
         {
-            case "1" -> {
+            case "1" : 
                 tCol = UN;
                 break;
-            }
-            case "2" -> {
+            
+            case "2" : 
                 tCol = DEUX;
                 break;
-            }
-            case "3" -> {
+            
+            case "3" : 
                 tCol = TROIS;
                 break;
-            }
-            case "4" -> {
+            
+            case "4" : 
                 tCol = QUATRE;
                 break;
-            }
-            case "5" -> {
+            
+            case "5" : 
                 tCol = CINQ;
                 break;
-            }
-            default -> {
+            
+            default : 
                 tCol = UN;
                 break;
-            }
+            
         }
         TCase tCase = new TCase(tLg,tCol);
         return tCase;
@@ -207,30 +207,30 @@ public class CommunicationProlog {
 
         switch (TermColonne.toString())
         {
-            case "1" -> {
+            case "1" : 
                 tCol = UN;
                 break;
-            }
-            case "2" -> {
+            
+            case "2" : 
                 tCol = DEUX;
                 break;
-            }
-            case "3" -> {
+            
+            case "3" : 
                 tCol = TROIS;
                 break;
-            }
-            case "4" -> {
+            
+            case "4" : 
                 tCol = QUATRE;
                 break;
-            }
-            case "5" -> {
+            
+            case "5" : 
                 tCol = CINQ;
                 break;
-            }
-            default -> {
+            
+            default : 
                 tCol = UN;
                 break;
-            }
+            
         }
         return tCol;
 
@@ -248,43 +248,43 @@ public class CommunicationProlog {
 
         switch (TermLigne.toString())
         {
-            case "1" -> {
+            case "1" : 
                 tLg = A;
                 break;
-            }
-            case "2" -> {
+            
+            case "2" : 
                 tLg = B;
                 break;
-            }
-            case "3" -> {
+            
+            case "3" : 
                 tLg = C;
                 break;
-            }
-            case "4" -> {
+            
+            case "4" : 
                 tLg = D;
                 break;
-            }
-            case "5" -> {
+            
+            case "5" : 
                 tLg = E;
                 break;
-            }
-            case "6" -> {
+            
+            case "6" : 
                 tLg = F;
                 break;
-            }
-            case "7" -> {
+            
+            case "7" : 
                 tLg = G;
                 break;
-            }
-            case "8" -> {
+            
+            case "8" : 
                 tLg = H;
                 break;
-            }
+            
 
-            default -> {
+            default : 
                 tLg = A;
                 break;
-            }
+            
         }
 
         System.out.println(tLg);
@@ -302,18 +302,18 @@ public class CommunicationProlog {
 
         switch (TermColeur.toString())
         {
-            case "r" -> {
+            case "r" : 
                 tCoul = ROUGE;
                 break;
-            }
-            case "b" -> {
+            
+            case "b" : 
                 tCoul = BLEU;
                 break;
-            }
-            default -> {
+            
+            default : 
                 tCoul = BLEU;
                 break;
-            }
+            
         }
         return tCoul;
     }
@@ -327,26 +327,26 @@ public class CommunicationProlog {
 
         switch (TermPropostionCoup.toString())
         {
-            case "g" -> {
+            case "g" : 
                 tPropCoup = TPropCoup.GAGNE;
                 break;
-            }
-            case "p" -> {
+            
+            case "p" : 
                 tPropCoup = TPropCoup.PERDU;
                 break;
-            }
-            case "n" -> {
+            
+            case "n" : 
                 tPropCoup = TPropCoup.NUL;
                 break;
-            }
-            case "c" -> {
+            
+            case "c" : 
                 tPropCoup = TPropCoup.CONT;
                 break;
-            }
-            default -> {
+            
+            default : 
                 tPropCoup = TPropCoup.CONT;
                 break;
-            }
+            
 
         }
         return tPropCoup;
@@ -361,19 +361,19 @@ public class CommunicationProlog {
 
         switch (Typedepl.toString())
         {
-            case "p" -> {
+            case "p" : 
                 nombre_pion_poche --;
                 tCoup = POSE;
                 break;
-            }
-            case "d" -> {
+            
+            case "d" : 
                 tCoup = DEPL;
                 break;
-            }
-            default -> {
+            
+            default : 
                 tCoup = POSE;
                 break;
-            }
+            
         }
 
         return tCoup;
