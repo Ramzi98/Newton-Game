@@ -477,6 +477,9 @@ etatGagnant(Grille,Player):-
 	Player is 2,
 	!.
 
+etatGagnantPlayer(PlayerGrille):-
+	contrainte(PlayerGrille,PlayerGrille).
+
 %%% updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 1, r, p, NVG).
 % updateGrille([[[[1,8],b],[[3,8],b],[[5,8],b],[[2,7],b],[[4,7],b]],[[[2,8],r],[[4,8],r],[[1,7],r],[[3,7],r],[[5,7],r]]], 6, 4, b, p, NVG).
 
