@@ -84,101 +84,101 @@ public class Grille {
 
         switch (tCol)
         {
-            case UN -> {
+            case UN : 
                 col = 1;
                 break;
-            }
-            case DEUX -> {
+            
+            case DEUX : 
                 col = 2;
                 break;
-            }
-            case TROIS -> {
+            
+            case TROIS : 
                 col = 3;
                 break;
-            }
-            case QUATRE -> {
+            
+            case QUATRE : 
                 col = 4;
                 break;
-            }
-            case CINQ -> {
+            
+            case CINQ : 
                 col = 5;
                 break;
-            }
-            default -> {
+            
+            default : 
                 col = 0;
                 break;
-            }
+            
 
             }
 
         switch (tLg) {
-            case A -> {
+            case A : 
                 ligne = 1;
                 break;
-            }
-            case B -> {
+            
+            case B : 
                 ligne = 2;
                 break;
-            }
-            case C -> {
+            
+            case C : 
                 ligne = 3;
                 break;
-            }
-            case D -> {
+            
+            case D : 
                 ligne = 4;
                 break;
-            }
-            case E -> {
+            
+            case E : 
                 ligne = 5;
                 break;
-            }
-            case F -> {
+            
+            case F : 
                 ligne = 6;
                 break;
-            }
-            case G -> {
+            
+            case G : 
                 ligne = 7;
                 break;
-            }
-            case H -> {
+            
+            case H : 
                 ligne = 8;
                 break;
-            }
+            
 
-            default -> {
+            default : 
                 ligne = 0;
                 break;
-            }
+            
         }
 
         switch (tcoup) {
-            case POSE -> {
+            case POSE : 
                 typecoup = "p";
                 break;
-            }
-            case DEPL -> {
+            
+            case DEPL : 
                 typecoup = "d";
                 break;
-            }
-            default -> {
+            
+            default : 
                 typecoup = "erreur_coup";
                 break;
-            }
+            
         }
 
         switch (tcouleur) {
-            case BLEU -> {
+            case BLEU : 
                 couleur = "b";
                 break;
-            }
-            case ROUGE -> {
+            
+            case ROUGE : 
                 couleur = "r";
                 break;
-            }
-            default -> {
+            
+            default : 
                 couleur = "erreur_couleur";
                 break;
-            }
+            
         }
 
         String file = ClassLoader.getSystemResource("Prolog"+ File.separator+"alphaBeta.pl").getPath();
