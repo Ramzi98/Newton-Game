@@ -1,6 +1,7 @@
 FLAGS = -cp
 JC = javac -cp
-CLASSPATH = ../lib/jpl.jar
+#CLASSPATH = ../lib/jpl.jar
+CLASSPATH = /usr/lib/swi-prolog/lib/jpl.jar
 
 
 .SUFFIXES: .java .class
