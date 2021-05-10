@@ -13,6 +13,7 @@ portServeur=$2
 nomJoueur=$3
 
 #on lance le joueur
+export LD_LIBRARY_PATH=/usr/lib/swi-prolog/lib/x86_64-linux/
 cd Client-Moia/src
 make clean
 make "ADRESSE=${hostServeur} ${portServeur} ${nomJoueur}"

@@ -53,7 +53,7 @@ public class Client extends Newton {
         int mes_parties_gagnees = 0;
         int adv_parties_gagnees = 0;
         boolean new_partie = false;
-        int profondeur = 4;
+        int profondeur = 5;
         int colonne;
         String ligne;
         int coup;

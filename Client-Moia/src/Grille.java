@@ -190,7 +190,9 @@ public class Grille {
         q = new Query("updateGrille("+grilleTotale+","+ligne+","+col+","+couleur+","+typecoup+", NVGrille)");
         Map<String, Term> nouvellegrille = q.oneSolution();
 
+        System.out.println(nouvellegrille);
         grilleTotale = nouvellegrille.get("NVGrille");
+        
 
 
 
