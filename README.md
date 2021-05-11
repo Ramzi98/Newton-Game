@@ -6,7 +6,7 @@ Une intelligence artificial pour le jeu Newton developpée avec Prolog et les so
 
 Pour lancer le joueur via la ligne de commande : 
 
-`sh Joueur.sh adresse_ip numPort nomJoueur`
+`sh joueur.sh adresse_ip numPort nomJoueur`
 
 Pour lancer le serveur developé par nos soins via la ligne de commande : 
 
